@@ -12,6 +12,8 @@
     <style>
         /* --- Premium Typography & Base --- */
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
+        
+        /* --- Layout & View Switching --- */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .view-section { display: none; }
@@ -51,9 +53,12 @@
         /* --- Chat Bubbles (iOS/Telegram Style) --- */
         #chat-messages { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
         .chat-bubble { padding: 0.75rem 1.25rem; font-size: 0.875rem; line-height: 1.5; position: relative; max-width: 80%; }
-        .chat-bubble-me { background: linear-gradient(135deg, #2563eb, #4f46e5); color: white; border-radius: 1.2rem 1.2rem 0.2rem 1.2rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25); }
+        .chat-bubble-me { background: linear-gradient(135deg, #2563eb, #4f46e5); color: white !important; border-radius: 1.2rem 1.2rem 0.2rem 1.2rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25); }
         .chat-bubble-other { background: white; color: #334155; border: 1px solid #e2e8f0; border-radius: 1.2rem 1.2rem 1.2rem 0.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .system-pill { background: rgba(241, 245, 249, 0.8); backdrop-filter: blur(5px); border: 1px solid #e2e8f0; color: #64748b; font-size: 0.65rem; font-weight: 700; padding: 0.35rem 1rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .chat-sender-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; opacity: 0.8; }
+        .chat-bubble-me .chat-sender-name { color: #bfdbfe; }
+        .chat-bubble-other .chat-sender-name { color: #64748b; }
 
         /* --- Custom Swal Theme --- */
         div:where(.swal2-container) div:where(.swal2-popup) { border-radius: 1.5rem !important; padding: 2rem !important; font-family: 'Plus Jakarta Sans', sans-serif !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
@@ -85,7 +90,7 @@
 
     <div id="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
-    <section id="auth-view" class="view-section active min-h-screen items-center justify-center bg-animated-gradient p-4 relative overflow-hidden">
+    <section id="auth-view" class="view-section active min-h-screen flex-col md:flex-row items-center justify-center bg-animated-gradient p-4 relative overflow-hidden">
         <div class="absolute top-20 left-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
         <div class="absolute bottom-20 right-20 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 2s;"></div>
 
@@ -120,7 +125,7 @@
         </div>
     </section>
 
-    <section id="app-view" class="view-section h-screen w-full flex overflow-hidden bg-slate-50">
+    <section id="app-view" class="view-section h-screen w-full overflow-hidden bg-slate-50">
         
         <aside id="sidebar" class="w-72 bg-[#020617] flex flex-col flex-shrink-0 shadow-2xl z-20 border-r border-slate-800">
             <div class="h-20 flex items-center px-8 border-b border-slate-800/80 text-white text-xl font-extrabold tracking-tight">
@@ -228,19 +233,25 @@
                                 <div>
                                     <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_cat">Category</label>
                                     <select id="tk-category" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 text-sm font-medium" required>
-                                        <option value="Hardware">💻 Hardware Issue</option><option value="Software">📱 Software / App</option><option value="Network">🌐 Network / Internet</option>
+                                        <option value="Hardware">❖ Hardware / PC Issue</option>
+                                        <option value="Software">❖ Software / Application</option>
+                                        <option value="Network">❖ Network / Internet</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_pri">Priority</label>
                                     <select id="tk-priority" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 text-sm font-medium" required>
-                                        <option value="4 - Low">🟢 Low (Minor issue)</option><option value="3 - Moderate" selected>🟡 Moderate</option><option value="2 - High">🟠 High (Urgent)</option><option value="1 - Critical">🔴 Critical (Emergency)</option>
+                                        <option value="4 - Low">● Low (Minor issue)</option>
+                                        <option value="3 - Moderate" selected>● Moderate (Standard)</option>
+                                        <option value="2 - High">● High (Urgent)</option>
+                                        <option value="1 - Critical">● Critical (Emergency)</option>
                                     </select>
                                 </div>
                             </div>
                             
-                            <div id="priority-desc" class="p-4 rounded-xl border border-blue-100 text-xs bg-blue-50/50 flex gap-3 text-blue-800 items-start">
-                                <i class="fas fa-info-circle mt-0.5 text-blue-500"></i><span id="priority-text" class="font-medium leading-relaxed">...</span>
+                            <div id="priority-desc" class="p-4 rounded-xl border border-blue-100 text-xs bg-blue-50/50 flex gap-3 text-blue-800 items-start transition-colors">
+                                <i class="fas fa-info-circle mt-0.5 text-blue-500" id="priority-icon"></i>
+                                <span id="priority-text" class="font-medium leading-relaxed">...</span>
                             </div>
                             
                             <div>
@@ -276,9 +287,9 @@
                                 <button onclick="setAdminFilter('Active')" id="btn-filter-Active" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition">Active</button>
                                 <button onclick="setAdminFilter('Resolved')" id="btn-filter-Resolved" class="px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition">Resolved</button>
                             </div>
-                            <div class="relative">
+                            <div class="relative mt-2 md:mt-0">
                                 <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                                <input type="text" id="search-admin" onkeyup="filterTickets('admin-table', 'search-admin')" placeholder="Search..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500/20 w-40 md:w-64">
+                                <input type="text" id="search-admin" onkeyup="filterTickets('admin-table', 'search-admin')" placeholder="Search..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500/20 w-full md:w-64">
                             </div>
                         </div>
                         <div class="overflow-auto flex-1 p-2">
@@ -324,7 +335,7 @@
                     <div class="mb-6">
                         <span class="detail-label">Reporter</span>
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs" id="modal-req-avatar">U</div>
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase" id="modal-req-avatar">U</div>
                             <div class="text-sm font-semibold text-slate-700" id="modal-req-name">User</div>
                         </div>
                     </div>
@@ -360,6 +371,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // ⚠️ ใส่ Config Firebase ของคุณตรงนี้
         const firebaseConfig = {
             apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
             authDomain: "servicenow-2b0cd.firebaseapp.com",
@@ -396,8 +408,8 @@
 
         // --- Translations ---
         const dict = {
-            en: { auth_sub: "Enterprise Service Desk", email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", role_user: "Requester", role_admin: "Support Agent", menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_admin: "Command Center", btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export" },
-            th: { auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_admin: "ศูนย์จัดการงาน", btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด" }
+            en: { auth_sub: "Enterprise Service Desk", email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", role_user: "Requester", role_admin: "Support Agent", menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_admin: "Command Center", btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV" },
+            th: { auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_admin: "ศูนย์จัดการงาน", btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV" }
         };
 
         let currentLang = localStorage.getItem('appLang') || 'en';
@@ -424,9 +436,33 @@
 
         const updatePriorityDesc = () => {
             const val = document.getElementById('tk-priority').value;
-            const thTexts = {"4 - Low": "กระทบการทำงานเล็กน้อย - SLA: แก้ไขภายใน 3 วัน", "3 - Moderate": "กระทบแผนก - SLA: แก้ไขภายใน 24 ชม.", "2 - High": "กระทบวงกว้าง - SLA: แก้ไขภายใน 4 ชม.", "1 - Critical": "ระบบหลักล่ม - SLA: แก้ไขภายใน 1 ชม."};
-            const enTexts = {"4 - Low": "Individual impact - SLA: 3 Days", "3 - Moderate": "Department impact - SLA: 24 Hours", "2 - High": "Business degraded - SLA: 4 Hours", "1 - Critical": "Total failure - SLA: 1 Hour"};
+            // ✅ เปลี่ยน Emoji เป็นสัญลักษณ์ Unicode พื้นฐาน (●) เพื่อความเสถียร 100%
+            const thTexts = {
+                "4 - Low": "● กระทบการทำงานเล็กน้อย - SLA: แก้ไขภายใน 3 วัน", 
+                "3 - Moderate": "● กระทบแผนก - SLA: แก้ไขภายใน 24 ชม.", 
+                "2 - High": "● กระทบวงกว้าง - SLA: แก้ไขภายใน 4 ชม.", 
+                "1 - Critical": "● ระบบหลักล่ม - SLA: แก้ไขภายใน 1 ชม."
+            };
+            const enTexts = {
+                "4 - Low": "● Individual impact - SLA: 3 Days", 
+                "3 - Moderate": "● Department impact - SLA: 24 Hours", 
+                "2 - High": "● Business degraded - SLA: 4 Hours", 
+                "1 - Critical": "● Total failure - SLA: 1 Hour"
+            };
+            
+            const descColors = {
+                "4 - Low": "bg-emerald-50/50 border-emerald-100 text-emerald-800",
+                "3 - Moderate": "bg-amber-50/50 border-amber-100 text-amber-800",
+                "2 - High": "bg-orange-50/50 border-orange-100 text-orange-800",
+                "1 - Critical": "bg-rose-50/50 border-rose-100 text-rose-800"
+            };
+            const iconColors = {
+                "4 - Low": "text-emerald-500", "3 - Moderate": "text-amber-500", "2 - High": "text-orange-500", "1 - Critical": "text-rose-500"
+            };
+
             document.getElementById('priority-text').innerText = currentLang === 'th' ? thTexts[val] : enTexts[val];
+            document.getElementById('priority-desc').className = `p-4 rounded-xl border text-xs flex gap-3 items-start transition-colors ${descColors[val]}`;
+            document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
         };
 
         window.switchTab = (tabName) => {
@@ -521,7 +557,7 @@
                     }
                 });
                 
-                // Animate Numbers (simple update)
+                // Animate Numbers
                 document.getElementById('stat-new').innerText = counts['New'];
                 document.getElementById('stat-progress').innerText = counts['In Progress'];
                 document.getElementById('stat-resolved').innerText = counts['Resolved'];
@@ -547,10 +583,10 @@
 
         document.getElementById('create-ticket-form').onsubmit = async (e) => {
             e.preventDefault(); 
-            Swal.fire({ title: 'Creating Ticket...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+            Swal.fire({ title: currentLang==='th'?'กำลังส่งข้อมูล...':'Submitting...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             try {
                 await addDoc(collection(db, "incidents"), { category: document.getElementById('tk-category').value, priority: document.getElementById('tk-priority').value, subject: document.getElementById('tk-subject').value, description: document.getElementById('tk-desc').value, status: "New", assignedTo: "", callerEmail: auth.currentUser.email, createdAt: new Date() });
-                Swal.fire({ icon: 'success', title: 'Done!', text: 'Your request is in the queue.', timer: 2000, showConfirmButton: false }); 
+                Swal.fire({ icon: 'success', title: currentLang==='th'?'สำเร็จ!':'Done!', text: currentLang==='th'?'รับเรื่องเข้าสู่ระบบแล้ว':'Your request is in the queue.', timer: 2000, showConfirmButton: false }); 
                 e.target.reset(); switchTab('incidents');
             } catch(err) { Swal.fire({ icon: 'error', text: err.message }); }
         };
@@ -586,12 +622,12 @@
                     const timeStr = d.createdAt ? d.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
                     
                     if(d.senderEmail === 'system') {
-                        html += `<div class="system-msg-container"><span class="system-msg-pill shadow-sm"><i class="fas fa-cog mr-1 opacity-50"></i> ${d.text}</span></div>`;
+                        html += `<div class="system-msg-container flex justify-center my-4"><span class="system-msg-pill shadow-sm"><i class="fas fa-cog mr-1 opacity-50"></i> ${d.text}</span></div>`;
                     } else {
                         const isMe = d.senderEmail === auth.currentUser.email;
                         const align = isMe ? 'items-end' : 'items-start';
                         const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
-                        const name = isMe ? 'You' : d.senderEmail.split('@')[0];
+                        const name = isMe ? (currentLang === 'th' ? 'ฉัน' : 'You') : d.senderEmail.split('@')[0];
                         
                         html += `<div class="flex flex-col ${align} w-full">
                                     <div class="chat-bubble ${style}">
@@ -603,7 +639,7 @@
                     }
                 });
                 const chatBox = document.getElementById('chat-messages');
-                chatBox.innerHTML = html || `<div class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60"><i class="far fa-comments text-5xl mb-4"></i><p class="text-sm font-medium">Start the conversation</p></div>`;
+                chatBox.innerHTML = html || `<div class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60"><i class="far fa-comments text-5xl mb-4"></i><p class="text-sm font-medium">${currentLang === 'th' ? 'เริ่มการสนทนาได้เลย' : 'Start the conversation'}</p></div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
         };
@@ -645,6 +681,7 @@
             for(let tr of trs) { let s = tr.getAttribute('data-status'); if(f === 'All') tr.style.display = ''; else if(f === 'Active' && s !== 'Resolved') tr.style.display = ''; else if(f === 'Resolved' && s === 'Resolved') tr.style.display = ''; else tr.style.display = 'none'; }
         };
 
+        // Initialize App
         document.getElementById('tk-priority').addEventListener('change', updatePriorityDesc);
         toggleLang(currentLang);
     </script>

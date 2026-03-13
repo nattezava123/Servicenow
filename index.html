@@ -525,18 +525,42 @@
             } catch (error) { Swal.fire({ icon: 'error', title: 'Error', text: error.message }); }
         };
 
+   // --- 🔴 LOGOUT (ปรับปรุงใหม่: ล้างค่าเกลี้ยงและกลับหน้าแรกแน่นอน 100%) ---
         document.getElementById('btn-logout').onclick = () => {
             Swal.fire({ 
-                title: currentLang==='th'?'ออกจากระบบ?':'Sign Out?', 
-                icon: 'warning', showCancelButton: true, confirmButtonColor: '#e11d48', cancelButtonColor: '#94a3b8',
-                confirmButtonText: currentLang==='th'?'ยืนยัน':'Yes'
+                title: currentLang === 'th' ? 'ออกจากระบบ?' : 'Sign Out?', 
+                text: currentLang === 'th' ? 'คุณต้องการออกจากระบบใช่หรือไม่?' : 'Are you sure you want to sign out?',
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#e11d48', 
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: currentLang === 'th' ? 'ยืนยัน' : 'Yes, Sign Out'
             }).then(async (result) => { 
                 if (result.isConfirmed) {
-                    await signOut(auth); 
-                    document.getElementById('app-view').classList.remove('active');
-                    document.getElementById('auth-view').classList.add('active');
-                    document.getElementById('auth-form').reset(); 
-                    switchTab('dashboard'); 
+                    try {
+                        // 1. สั่ง Firebase ให้ตัดการเชื่อมต่อ
+                        await signOut(auth); 
+                        
+                        // 2. ล้างข้อมูลที่จำไว้ในเครื่อง (ถ้ามี)
+                        localStorage.removeItem('appLang'); // หรือเก็บไว้ก็ได้ถ้าอยากให้จำภาษา
+                        
+                        // 3. แจ้งเตือนสั้นๆ ก่อนเด้งออก
+                        Swal.fire({
+                            title: currentLang === 'th' ? 'กำลังออกจากระบบ...' : 'Signing out...',
+                            timer: 1000,
+                            showConfirmButton: false,
+                            didOpen: () => { Swal.showLoading(); }
+                        });
+
+                        // 4. วิธีที่ชัวร์ที่สุดคือสั่ง Reload หน้าเว็บใหม่ทั้งหมด
+                        // วิธีนี้จะล้างตัวแปร globalTickets และสถานะค้างหน้าจอทิ้ง 100%
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+
+                    } catch (error) {
+                        Swal.fire({ icon: 'error', title: 'Logout Failed', text: error.message });
+                    }
                 } 
             });
         };

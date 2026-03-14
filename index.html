@@ -599,8 +599,26 @@
                 document.getElementById('auth-view').classList.remove('active');
                 document.getElementById('app-view').classList.add('active');
                 
-                const roleText = user.email.toLowerCase().includes('admin') ? dict[currentLang].role_admin : dict[currentLang].role_user;
-                isAdmin = user.email.toLowerCase().includes('admin');
+                // =========================================================
+                // ⚙️ ตั้งค่าสิทธิ์ Admin (เลือกใช้แบบที่ 1 หรือ 2 โดยการเปิด/ปิด Comment)
+                // =========================================================
+
+                // 👉 แบบที่ 1: ให้เป็น Admin ถ้าในอีเมลมีคำว่า "admin" (แบบเดิมที่เปิดใช้งานอยู่)
+                // isAdmin = user.email.toLowerCase().includes('admin');
+
+                // 👉 แบบที่ 2: กำหนดให้เป็น Admin ได้ "หลายอีเมล" แบบระบุตัวตน (แนะนำให้ใช้แบบนี้)
+                // (ถ้าจะใช้แบบที่ 2 ให้ลบเครื่องหมาย /* และ */ ด้านล่างนี้ออก แล้วไปใส่ // ทับบรรทัดของแบบที่ 1 ด้านบนแทน)
+                
+                const adminEmails = [
+                    'admin1@gmail.com', 
+                    'Nattezava1996@gmail.com', 
+                    'your.ajarn@university.ac.th'
+                ];
+                isAdmin = adminEmails.includes(user.email.toLowerCase());
+                
+                // =========================================================
+
+                const roleText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
                 
                 const userName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
                 document.getElementById('dash-user-name').innerText = userName;

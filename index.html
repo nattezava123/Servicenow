@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ServiceNode Pro | Premium ITSM</title>
+    <title>Factory IT Service Center System | ศูนย์บริการไอทีโรงงาน</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -45,10 +45,57 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
         }
 
-        /* --- Sidebar & Menu --- */
-        .menu-link { transition: all 0.2s ease; position: relative; overflow: hidden; border-radius: 0.75rem; margin: 0.25rem 1rem; padding: 0.75rem 1rem; color: #94a3b8; }
-        .menu-link:hover { background: rgba(255,255,255,0.05); color: white; }
-        .menu-link.active { background: #3b82f6 !important; color: white !important; font-weight: 600; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        /* --- Sidebar & Menu (Enhanced Animations) --- */
+        .menu-link { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 0.75rem; 
+            margin: 0.25rem 1rem; 
+            padding: 0.75rem 1rem; 
+            color: #94a3b8; 
+        }
+        
+        .menu-link i { 
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease; 
+        }
+
+        /* Hover Effects */
+        .menu-link:hover { 
+            background: rgba(255,255,255,0.08); 
+            color: white; 
+            transform: translateX(6px); /* เลื่อนขวาเบาๆ */
+        }
+        
+        .menu-link:hover i { 
+            transform: scale(1.2) rotate(5deg); /* ไอคอนเด้งและเอียงเล็กน้อย */
+            color: #60a5fa; 
+        }
+
+        /* Active State */
+        .menu-link.active { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb) !important; 
+            color: white !important; 
+            font-weight: 600; 
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); 
+            transform: translateX(6px); 
+        }
+        
+        .menu-link.active i { 
+            color: white;
+            animation: activeIconPulse 2s infinite ease-in-out; /* อนิเมชั่นกระเพื่อม */
+        }
+
+        /* Click Press Effect */
+        .menu-link:active {
+            transform: translateX(4px) scale(0.98);
+        }
+
+        @keyframes activeIconPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
 
         /* --- Chat Bubbles (iOS/Telegram Style) --- */
         #chat-messages { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
@@ -102,9 +149,9 @@
         <div class="glass-panel p-8 md:p-10 rounded-[2rem] w-full max-w-[420px] z-10 relative">
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl mb-5 shadow-xl shadow-blue-500/40 transform transition hover:rotate-6">
-                    <i class="fas fa-bolt text-3xl text-white"></i>
+                    <i class="fas fa-industry text-3xl text-white"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight" id="auth-title">ServiceNode</h2>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight leading-tight" id="auth-title" data-i18n="app_name">Factory IT Service Center System</h2>
                 <p class="text-slate-500 text-sm mt-2 font-medium" id="auth-subtitle" data-i18n="auth_sub">Enterprise Service Desk</p>
             </div>
             <form id="auth-form" class="space-y-5">
@@ -128,8 +175,9 @@
     <section id="app-view" class="view-section h-screen w-full overflow-hidden bg-slate-50">
         
         <aside id="sidebar" class="w-72 bg-[#020617] flex flex-col flex-shrink-0 shadow-2xl z-20 border-r border-slate-800">
-            <div class="h-20 flex items-center px-8 border-b border-slate-800/80 text-white text-xl font-extrabold tracking-tight">
-                <i class="fas fa-bolt text-blue-500 mr-3"></i> ServiceNode
+            <div class="h-20 flex items-center px-8 border-b border-slate-800/80 text-white font-extrabold tracking-tight">
+                <i class="fas fa-industry text-blue-500 mr-3 text-xl"></i> 
+                <span data-i18n="app_name_short" class="text-sm leading-tight">Factory IT Service Center</span>
             </div>
             <div class="p-6 my-2 mx-4 bg-slate-800/30 rounded-2xl border border-slate-700/50 backdrop-blur-md">
                 <div class="flex items-center gap-4">
@@ -408,8 +456,8 @@
 
         // --- Translations ---
         const dict = {
-            en: { auth_sub: "Enterprise Service Desk", email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", role_user: "Requester", role_admin: "Support Agent", menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_admin: "Command Center", btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV" },
-            th: { auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_admin: "ศูนย์จัดการงาน", btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV" }
+            en: { app_name: "Factory IT Service Center System", app_name_short: "Factory IT Service Center", auth_sub: "Enterprise Service Desk", email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", role_user: "Requester", role_admin: "Support Agent", menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_admin: "Command Center", btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV" },
+            th: { app_name: "ศูนย์บริการไอทีโรงงาน", app_name_short: "ศูนย์บริการไอทีโรงงาน", auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_admin: "ศูนย์จัดการงาน", btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV" }
         };
 
         let currentLang = localStorage.getItem('appLang') || 'en';
@@ -432,11 +480,13 @@
             else { btnTh.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnEn.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
             
             updatePriorityDesc();
+            if(!document.getElementById('app-view').classList.contains('active')) {
+                document.getElementById('auth-title').innerText = dict[currentLang].app_name;
+            }
         };
 
         const updatePriorityDesc = () => {
             const val = document.getElementById('tk-priority').value;
-            // ✅ เปลี่ยน Emoji เป็นสัญลักษณ์ Unicode พื้นฐาน (●) เพื่อความเสถียร 100%
             const thTexts = {
                 "4 - Low": "● กระทบการทำงานเล็กน้อย - SLA: แก้ไขภายใน 3 วัน", 
                 "3 - Moderate": "● กระทบแผนก - SLA: แก้ไขภายใน 24 ชม.", 
@@ -470,13 +520,13 @@
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
             setTimeout(() => { document.getElementById(`tab-${tabName}`).classList.add('active'); }, 10);
             event.currentTarget?.classList.add('active');
-            document.getElementById('page-title').innerText = dict[currentLang][`menu_${tabName}`] || 'ServiceNode';
+            document.getElementById('page-title').innerText = dict[currentLang][`menu_${tabName}`] || dict[currentLang].app_name;
             if(window.innerWidth <= 768 && document.getElementById('sidebar').classList.contains('open')) toggleMobileMenu();
         };
 
         window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "ServiceNode" : (currentLang === 'th' ? "สมัครสมาชิก" : "Create Account");
+            document.getElementById('auth-title').innerText = isLoginMode ? dict[currentLang].app_name : (currentLang === 'th' ? "สมัครสมาชิก" : "Create Account");
             document.getElementById('auth-submit-btn').innerText = isLoginMode ? dict[currentLang].btn_signin : dict[currentLang].btn_register;
         };
 

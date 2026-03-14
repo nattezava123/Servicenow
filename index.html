@@ -66,6 +66,11 @@
         .chat-bubble-me .chat-sender-name { color: #bfdbfe; }
         .chat-bubble-other .chat-sender-name { color: #64748b; }
 
+        /* --- AI Chat Animations --- */
+        .chat-ai-bubble { animation: fadeIn 0.3s ease-out forwards; }
+        .chat-user-bubble { animation: slideLeft 0.3s ease-out forwards; }
+        @keyframes slideLeft { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
         /* --- Custom Swal Theme --- */
         div:where(.swal2-container) div:where(.swal2-popup) { border-radius: 1.5rem !important; padding: 2rem !important; font-family: 'Plus Jakarta Sans', sans-serif !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; }
         div:where(.swal2-container) button:where(.swal2-styled.swal2-confirm) { background-color: #3b82f6 !important; border-radius: 0.75rem !important; }
@@ -161,8 +166,13 @@
                 <a href="#" onclick="switchTab('incidents')" class="flex items-center menu-link"><i class="fas fa-layer-group w-8 text-lg opacity-80"></i> <span data-i18n="menu_incidents" class="font-medium text-sm">My Tickets</span></a>
                 <a href="#" onclick="switchTab('create')" class="flex items-center menu-link"><i class="fas fa-plus-circle w-8 text-lg opacity-80"></i> <span data-i18n="menu_create" class="font-medium text-sm">Create Ticket</span></a>
                 
+                <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-6 mb-3">AI Engine</p>
+                <a href="#" onclick="openAIModal()" class="flex items-center menu-link text-indigo-400 hover:text-indigo-400">
+                    <i class="fas fa-robot w-8 text-lg opacity-80"></i> <span class="font-medium text-sm">Serviceman</span>
+                </a>
+
                 <div id="admin-menu" class="hidden">
-                    <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-6 mb-3" data-i18n="menu_group_2">Admin</p>
+                    <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-8 mb-3" data-i18n="menu_group_2">Admin</p>
                     <a href="#" onclick="switchTab('admin')" class="flex items-center menu-link text-indigo-400"><i class="fas fa-shield-halved w-8 text-lg opacity-80"></i> <span data-i18n="menu_admin" class="font-medium text-sm">Command Center</span></a>
                 </div>
             </nav>
@@ -282,11 +292,11 @@
                         <div class="overflow-auto flex-1 p-2">
                             <table class="w-full text-left border-collapse whitespace-nowrap" id="ticket-table">
                                 <thead class="sticky top-0 bg-white z-10">
-                                    <tr class="text-slate-400 text-[10px] uppercase font-black tracking-widest">
-                                        <th class="py-4 px-6 border-b border-slate-100">Ticket ID</th>
-                                        <th class="py-4 px-6 border-b border-slate-100" data-i18n="th_subject">Subject</th>
-                                        <th class="py-4 px-6 border-b border-slate-100" data-i18n="th_status">Status</th>
-                                        <th class="py-4 px-6 border-b border-slate-100 text-right" data-i18n="th_date">Timeline</th>
+                                    <tr class="text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
+                                        <th class="py-4 px-6">Ticket ID</th>
+                                        <th class="py-4 px-6" data-i18n="th_subject">Subject</th>
+                                        <th class="py-4 px-6" data-i18n="th_status">Status</th>
+                                        <th class="py-4 px-6 text-right" data-i18n="th_date">Timeline</th>
                                     </tr>
                                 </thead>
                                 <tbody id="user-ticket-list" class="text-sm"></tbody>
@@ -298,7 +308,6 @@
                 <div id="tab-create" class="tab-content max-w-3xl mx-auto">
                     <div class="bg-white p-8 md:p-10 rounded-[2rem] shadow-sm border border-slate-200 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10"></div>
-                        
                         <div class="mb-8">
                             <h2 class="text-2xl font-extrabold text-slate-800" data-i18n="form_title">How can we help?</h2>
                             <p class="text-slate-500 text-sm mt-1" data-i18n="form_sub">Fill out the details below to open a new support request.</p>
@@ -346,22 +355,12 @@
                 </div>
 
                 <div id="tab-admin" class="tab-content max-w-7xl mx-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-500/20 col-span-1 md:col-span-2 flex justify-between items-center text-white">
-                            <div>
-                                <p class="text-blue-200 text-[10px] font-black uppercase tracking-widest mb-1" data-i18n="admin_my_resolved">My Resolved Tickets</p>
-                                <p class="text-4xl font-black flex items-center gap-3"><i class="fas fa-trophy text-amber-300"></i> <span id="stat-admin-my-resolved">0</span></p>
-                            </div>
-                            <button onclick="exportCSV()" class="bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"><i class="fas fa-download mr-2"></i> <span data-i18n="btn_export">Export CSV</span></button>
+                    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-500/20 flex justify-between items-center text-white mb-6">
+                        <div>
+                            <p class="text-blue-200 text-[10px] font-black uppercase tracking-widest mb-1" data-i18n="admin_my_resolved">My Resolved Tickets</p>
+                            <p class="text-4xl font-black flex items-center gap-3"><i class="fas fa-trophy text-amber-300"></i> <span id="stat-admin-my-resolved">0</span></p>
                         </div>
-
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 col-span-1 flex flex-col justify-center">
-                            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2" data-i18n="admin_user_mgt">Manage User Passwords</p>
-                            <div class="flex gap-2 mt-1">
-                                <input type="email" id="admin-reset-email" placeholder="User Email..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/20">
-                                <button onclick="adminResetUserPassword()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap" data-i18n="btn_reset_pwd">Send Reset</button>
-                            </div>
-                        </div>
+                        <button onclick="exportCSV()" class="bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"><i class="fas fa-download mr-2"></i> <span data-i18n="btn_export">Export CSV</span></button>
                     </div>
                     
                     <div class="bg-white rounded-[1.5rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[65vh]">
@@ -387,6 +386,41 @@
         </main>
     </section>
 
+    <div id="ai-modal" class="fixed inset-0 z-[300] hidden flex justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all">
+        <div id="ai-box" class="bg-white border border-slate-200 w-full max-w-4xl rounded-[2rem] shadow-2xl flex flex-col transform scale-95 transition-all h-[90vh] mt-10 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center text-lg shadow-md"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h3 class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Serviceman</h3>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Enterprise AI</p>
+                    </div>
+                </div>
+                <button onclick="closeAIModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="ai-console" class="p-8 flex-1 overflow-y-auto font-sans text-sm leading-relaxed space-y-6 bg-white">
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div>
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm text-slate-700 shadow-sm">
+                        สวัสดีครับ! ผมคือ <strong>Serviceman</strong> ผู้ช่วยอัจฉริยะประจำองค์กร <br><br>
+                        นอกจากผมจะเชื่อมต่อกับฐานข้อมูลตั๋วแจ้งซ่อมแบบเรียลไทม์แล้ว คุณยังสามารถถามคำถามทั่วไปกับผมได้เหมือน AI ทั่วไปเลยครับ! ตัวอย่างเช่น:<br>
+                        <ul class="list-disc pl-5 mt-2 space-y-1 text-slate-500">
+                            <li><strong>งาน IT:</strong> "สรุปตั๋วแจ้งซ่อมวันนี้ให้หน่อย", "วิเคราะห์ให้ทีว่าระบบไหนมีปัญหาบ่อยที่สุด?"</li>
+                            <li><strong>เรื่องทั่วไป:</strong> "ช่วยแต่งอีเมลแจ้งลางานหน่อย", "ขอไอเดียมื้อเที่ยง", "แปลประโยคนี้เป็นภาษาอังกฤษให้ที"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-200 shrink-0">
+                <div class="flex gap-3 max-w-3xl mx-auto relative">
+                    <input type="text" id="ai-input" placeholder="พิมพ์คำถามเกี่ยวกับระบบ IT หรือเรื่องทั่วไปที่ต้องการให้ Serviceman ช่วย..." class="flex-1 bg-white border border-slate-300 rounded-[1.5rem] pl-6 pr-16 py-4 text-sm text-slate-800 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm" onkeypress="if(event.key === 'Enter') executeGeminiSearch()">
+                    <button onclick="executeGeminiSearch()" class="absolute right-2 top-2 bottom-2 bg-indigo-600 hover:bg-indigo-700 text-white w-12 rounded-xl flex items-center justify-center transition-all shadow-md"><i class="fas fa-paper-plane text-xs -ml-0.5"></i></button>
+                </div>
+                <div class="text-center mt-3 text-[10px] text-slate-400">Serviceman is powered by AI. Responses may contain inaccuracies.</div>
+            </div>
+        </div>
+    </div>
+
     <div id="ticket-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[200] flex items-center justify-center p-0 md:p-6 transition-all duration-300 opacity-0" style="transition: opacity 0.3s ease;">
         <div class="bg-white w-full h-full md:max-w-6xl md:h-[85vh] md:rounded-[2rem] flex flex-col overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300" id="modal-box">
             
@@ -410,11 +444,11 @@
                     
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Category</span>
+                            <span class="detail-label !mb-1 text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Category</span>
                             <span class="font-bold text-sm text-slate-700 truncate block" id="modal-cat">CAT</span>
                         </div>
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Priority</span>
+                            <span class="detail-label !mb-1 text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Priority</span>
                             <span class="font-bold text-sm text-rose-600 truncate block" id="modal-pri">PRI</span>
                         </div>
                     </div>
@@ -440,7 +474,7 @@
                     </div>
                     
                     <div id="chat-messages" class="flex-1 overflow-y-auto">
-                        </div>
+                    </div>
                     
                     <div class="p-4 bg-white border-t border-slate-200">
                         <form id="chat-form" class="flex gap-3 relative">
@@ -455,9 +489,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+        
         // ⚠️ ใส่ Config Firebase ของคุณตรงนี้
         const firebaseConfig = {
             apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
@@ -465,8 +499,7 @@
             projectId: "servicenow-2b0cd",
             storageBucket: "servicenow-2b0cd.firebasestorage.app",
             messagingSenderId: "1050981111123",
-            appId: "1:1050981111123:web:e6adfe818b041d26fbbda6",
-            measurementId: "G-YJQS2G1S64"
+            appId: "1:1050981111123:web:e6adfe818b041d26fbbda6"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -476,14 +509,20 @@
         const googleProvider = new GoogleAuthProvider();
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
+        // --- Time Formatter ---
         function timeAgo(date) {
             if(!date) return '-';
             const seconds = Math.floor((new Date() - date) / 1000);
-            let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago";
-            interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago";
-            interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago";
-            interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago";
-            interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago";
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
             return "Just now";
         }
 
@@ -498,7 +537,6 @@
                 admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", 
                 search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", 
                 form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV",
-                admin_user_mgt: "Manage User Passwords", btn_reset_pwd: "Send Reset Link",
                 dash_welcome: "Welcome back,", dash_sub: "Here's what's happening with your IT support tickets today.",
                 dash_recent: "Recent Activity", btn_view_all: "View All", dash_status: "System Status", dash_status_sub: "All factory IT systems are running smoothly.",
                 sys_net: "Network", sys_erp: "ERP System"
@@ -513,7 +551,6 @@
                 admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", 
                 search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", 
                 form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV",
-                admin_user_mgt: "จัดการรหัสผ่านพนักงาน", btn_reset_pwd: "ส่งลิงก์รีเซ็ต",
                 dash_welcome: "ยินดีต้อนรับ,", dash_sub: "สรุปภาพรวมการแจ้งซ่อมไอทีของคุณในวันนี้",
                 dash_recent: "รายการอัปเดตล่าสุด", btn_view_all: "ดูทั้งหมด", dash_status: "สถานะระบบโรงงาน", dash_status_sub: "ระบบไอทีทั้งหมดทำงานได้อย่างสมบูรณ์",
                 sys_net: "ระบบเครือข่าย", sys_erp: "ระบบ ERP"
@@ -524,23 +561,31 @@
         let isAdmin = false; let isLoginMode = true; let currentAdminFilter = 'All';
         window.globalTickets = {}; let currentTicketId = null; let chatUnsubscribe = null;
 
+        // --- Core UI Logic ---
         window.toggleMobileMenu = () => {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
         };
 
         window.toggleLang = (lang) => {
-            currentLang = lang; localStorage.setItem('appLang', lang);
+            currentLang = lang;
+            localStorage.setItem('appLang', lang);
             document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if(dict[lang][k]) el.innerHTML = dict[lang][k]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.getAttribute('data-i18n-placeholder'); if(dict[lang][k]) el.placeholder = dict[lang][k]; });
             
             const btnEn = document.getElementById('lang-en-auth'); const btnTh = document.getElementById('lang-th-auth');
-            if(lang === 'en') { btnEn.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105"; btnTh.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105"; }
-            else { btnTh.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105"; btnEn.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105"; }
+            if(lang === 'en') { btnEn.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105";
+            btnTh.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105";
+            } else { btnTh.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105";
+            btnEn.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105";
+            }
             
             const btnEnApp = document.getElementById('lang-en-app'); const btnThApp = document.getElementById('lang-th-app');
-            if(lang === 'en') { btnEnApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnThApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
-            else { btnThApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnEnApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
+            if(lang === 'en') { btnEnApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition";
+            btnThApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition";
+            } else { btnThApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition";
+            btnEnApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition";
+            }
 
             updatePriorityDesc();
             if(!document.getElementById('app-view').classList.contains('active')) { document.getElementById('auth-title').innerText = dict[currentLang].app_name; }
@@ -552,7 +597,6 @@
             const enTexts = { "4 - Low": "● Individual impact - SLA: 3 Days", "3 - Moderate": "● Department impact - SLA: 24 Hours", "2 - High": "● Business degraded - SLA: 4 Hours", "1 - Critical": "● Total failure - SLA: 1 Hour" };
             const descColors = { "4 - Low": "bg-emerald-50/50 border-emerald-100 text-emerald-800", "3 - Moderate": "bg-amber-50/50 border-amber-100 text-amber-800", "2 - High": "bg-orange-50/50 border-orange-100 text-orange-800", "1 - Critical": "bg-rose-50/50 border-rose-100 text-rose-800" };
             const iconColors = { "4 - Low": "text-emerald-500", "3 - Moderate": "text-amber-500", "2 - High": "text-orange-500", "1 - Critical": "text-rose-500" };
-
             document.getElementById('priority-text').innerText = currentLang === 'th' ? thTexts[val] : enTexts[val];
             document.getElementById('priority-desc').className = `p-4 rounded-xl border text-xs flex gap-3 items-start transition-colors ${descColors[val]}`;
             document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
@@ -574,56 +618,120 @@
             document.getElementById('auth-switch-btn').innerText = isLoginMode ? dict[currentLang].btn_register : dict[currentLang].btn_signin;
         };
 
+        // --- 🚀 THE REAL GEMINI AI INTEGRATION 🚀 ---
+        window.openAIModal = () => { 
+            document.getElementById('ai-modal').classList.remove('hidden'); 
+            setTimeout(() => document.getElementById('ai-box').classList.remove('scale-95'), 10); 
+        };
+        
+        window.closeAIModal = () => { 
+            document.getElementById('ai-box').classList.add('scale-95'); 
+            setTimeout(() => { document.getElementById('ai-modal').classList.add('hidden'); }, 300); 
+        };
+
+        window.executeGeminiSearch = async () => {
+            const input = document.getElementById('ai-input');
+            const queryText = input.value.trim();
+            if(!queryText) return;
+
+            const consoleBox = document.getElementById('ai-console');
+            input.value = '';
+            
+            // 1. User Message
+            consoleBox.innerHTML += `
+            <div class="flex justify-end mb-6 chat-user-bubble">
+                <div class="bg-indigo-600 text-white px-5 py-3 rounded-2xl rounded-tr-sm text-sm max-w-[80%] shadow-lg">
+                    ${queryText}
+                </div>
+            </div>`;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+
+            // 2. AI Thinking
+            const thinkingId = 'think-' + Date.now();
+            consoleBox.innerHTML += `
+            <div id="${thinkingId}" class="flex items-start gap-4 mb-6">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div>
+                <div class="bg-white border border-slate-100 px-5 py-3 rounded-2xl rounded-tl-sm flex items-center gap-2 text-indigo-400 shadow-sm">
+                    <span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay: 0.2s">●</span><span class="animate-bounce" style="animation-delay: 0.4s">●</span>
+                </div>
+            </div>`;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+
+            // 3. API Call using gemini-2.5-flash
+            try {
+                const API_KEY = "AIzaSyCSqEyoym45lLMH2gv0TMXwagsYF8Gfnh0"; 
+                const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
+                
+                const prompt = `คุณคือ Serviceman ผู้ช่วยส่วนตัวอัจฉริยะ และพนักงานฝ่าย IT ประจำโรงงาน
+                
+                ข้อมูลตั๋วแจ้งซ่อมในระบบปัจจุบัน (JSON): ${currentData}
+                
+                กฎการตอบ: 
+                1. ถ้าผู้ใช้ถามเรื่องงาน IT ให้อ่านและวิเคราะห์จากข้อมูล JSON ด้านบน
+                2. ถ้าผู้ใช้ถามเรื่องทั่วไป ให้ตอบแบบรอบรู้เหมือน AI ทั่วไป โดยใช้ความรู้ที่คุณมี
+                3. ใช้ภาษาไทย สุภาพ เป็นธรรมชาติ จัดรูปแบบให้อ่านง่าย (ใช้ HTML tags เช่น <br>, <strong> ห้ามใช้ Markdown ** เด็ดขาด)
+                คำถามจากผู้ใช้: "${queryText}"`;
+
+                // 🔥 เปลี่ยนเป็นโมเดลที่ใช้งานได้แน่นอนตามที่คุณแคปจอมาให้ครับ 🔥
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await response.json();
+                document.getElementById(thinkingId).remove();
+
+                if (data.error) throw new Error(data.error.message);
+
+                let rawText = data.candidates[0].content.parts[0].text;
+                let formattedText = rawText
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>')
+                    .replace(/\*(.*?)/g, '<li class="ml-4 mt-1">$1</li>')
+                    .replace(/\n/g, '<br>');
+
+                consoleBox.innerHTML += `
+                <div class="flex items-start gap-4 mb-6 chat-ai-bubble">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div>
+                    <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm text-slate-700 text-sm shadow-sm w-full max-w-[85%] leading-relaxed">
+                        ${formattedText}
+                    </div>
+                </div>`;
+
+            } catch (error) {
+                document.getElementById(thinkingId)?.remove();
+                consoleBox.innerHTML += `
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0"><i class="fas fa-exclamation-triangle text-[10px]"></i></div>
+                    <div class="bg-rose-50 border border-rose-100 p-5 rounded-2xl rounded-tl-sm text-rose-700 text-sm w-full max-w-[85%]">
+                        <strong>เกิดข้อผิดพลาดในการเชื่อมต่อ API:</strong><br>${error.message}
+                    </div>
+                </div>`;
+            }
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        };
+
+        // --- Firebase Auth ---
         window.loginWithGoogle = async () => {
             Swal.fire({ title: currentLang==='th'?'กำลังเชื่อมต่อ...':'Connecting...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             try { await signInWithPopup(auth, googleProvider); Swal.close(); } 
             catch (error) { Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' }); }
         };
 
-        window.adminResetUserPassword = async () => {
-            const email = document.getElementById('admin-reset-email').value;
-            if(!email) { Swal.fire({ icon: 'warning', text: currentLang==='th'?'กรุณากรอกอีเมลของพนักงานที่ต้องการเปลี่ยนรหัสผ่าน':'Please enter the user\'s email' }); return; }
-            try {
-                Swal.fire({ title: currentLang==='th'?'กำลังดำเนินการ...':'Processing...', didOpen: () => Swal.showLoading() });
-                await sendPasswordResetEmail(auth, email);
-                Swal.fire({ icon: 'success', title: currentLang==='th'?'สำเร็จ!':'Success!', text: currentLang==='th'?`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${email} เรียบร้อยแล้ว`:`Reset link sent to ${email} successfully.` });
-                document.getElementById('admin-reset-email').value = '';
-            } catch(e) {
-                let errorMsg = e.message; if(e.code === 'auth/user-not-found') { errorMsg = currentLang==='th'?'ไม่พบพนักงานที่ใช้อีเมลนี้ในระบบ':'User email not found in our system.'; }
-                Swal.fire({ icon: 'error', text: errorMsg });
-            }
-        };
-
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('auth-view').classList.remove('active');
                 document.getElementById('app-view').classList.add('active');
+                document.getElementById('user-email').innerText = user.email.split('@')[0];
                 
-                // =========================================================
-                // ⚙️ ตั้งค่าสิทธิ์ Admin (เปิดให้เป็น Admin ทั้งจากคำว่า admin และอีเมลที่ระบุ)
-                // =========================================================
-                const adminEmails = [
-                    'nattezava1996@gmail.com', 
-                    'your.ajarn@university.ac.th'
-                ];
-                // เป็น Admin ถ้ามีคำว่า "admin" อยู่ในอีเมล หรือ อีเมลตรงกับในลิสต์ด้านบน
+                const adminEmails = ['nattezava1996@gmail.com', 'your.ajarn@university.ac.th'];
                 isAdmin = user.email.toLowerCase().includes('admin') || adminEmails.includes(user.email.toLowerCase());
-                // =========================================================
-
-                const roleText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
-                
-                const userName = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-                document.getElementById('dash-user-name').innerText = userName;
-                document.getElementById('user-email').innerText = userName;
-                document.getElementById('user-role').innerText = roleText;
                 
                 if(isAdmin) document.getElementById('admin-menu').classList.remove('hidden');
+                document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
                 
-                if(user.photoURL) {
-                    document.getElementById('sidebar-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full rounded-full object-cover">`;
-                } else {
-                    document.getElementById('sidebar-avatar').innerHTML = `<i class="fas fa-user"></i>`;
-                }
+                if(user.photoURL) { document.getElementById('sidebar-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full rounded-full object-cover">`; } 
+                else { document.getElementById('sidebar-avatar').innerHTML = `<i class="fas fa-user"></i>`; }
                 
                 loadDashboardData();
             } else {
@@ -631,12 +739,12 @@
                 document.getElementById('auth-view').classList.add('active');
             }
         });
-
+        
         document.getElementById('auth-form').onsubmit = async (e) => {
             e.preventDefault();
             Swal.fire({ title: currentLang==='th'?'กำลังตรวจสอบ...':'Authenticating...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             try { 
-                if (isLoginMode) await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value); 
+                if (isLoginMode) await signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value);
                 else await createUserWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value); 
                 Swal.close();
             } catch (error) { Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' }); }
@@ -647,6 +755,7 @@
             .then((result) => { if (result.isConfirmed) { signOut(auth).then(() => window.location.reload()); } });
         };
 
+        // --- Core Data Loading ---
         function loadDashboardData() {
             const q = query(collection(db, "incidents"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -666,10 +775,10 @@
                     
                     const bgColors = { 'New': 'bg-blue-100 text-blue-700', 'In Progress': 'bg-amber-100 text-amber-700', 'Resolved': 'bg-emerald-100 text-emerald-700' };
                     let statusHtml = `<span class="${bgColors[t.status]} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">${t.status}</span>`;
+                    
                     let priIndicator = t.priority.includes('1') ? `<span class="inline-block w-2 h-2 rounded-full bg-rose-500 animate-pulse mr-2"></span>` : ``;
                     let timeStr = timeAgo(t.createdAt?.toDate());
 
-                    // Filter for User or Admin
                     if(t.callerEmail === auth.currentUser.email || isAdmin) {
                         userHtml += `<tr class="hover:bg-slate-50/80 border-b border-slate-100 cursor-pointer transition" onclick="openModal('${id}')">
                             <td class="py-4 px-6 font-mono font-bold text-blue-600 text-xs">${displayId}</td>
@@ -679,7 +788,6 @@
                         </tr>`;
                         counts[t.status]++; counts.Total++;
                         
-                        // Populate Recent Activity on Dashboard (Max 4 items)
                         if(recentCount < 4) {
                             const iconHtml = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500"></i>' : '<i class="fas fa-ticket-alt"></i>';
                             recentDashHtml += `
@@ -712,7 +820,6 @@
                     }
                 });
                 
-                // Update Dashboard DOM
                 document.getElementById('stat-new').innerText = counts['New']; 
                 document.getElementById('stat-progress').innerText = counts['In Progress'];
                 document.getElementById('stat-resolved').innerText = counts['Resolved']; 
@@ -787,21 +894,13 @@
                         </div>
                     </div>
                 `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
+                focusConfirm: false, showCancelButton: true, confirmButtonColor: '#3b82f6',
                 confirmButtonText: currentLang === 'th' ? 'บันทึกข้อมูล' : 'Save Changes',
                 cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
                 preConfirm: () => {
-                    return {
-                        subject: document.getElementById('edit-subj').value,
-                        category: document.getElementById('edit-cat').value,
-                        priority: document.getElementById('edit-pri').value,
-                        description: document.getElementById('edit-desc').value
-                    }
+                    return { subject: document.getElementById('edit-subj').value, category: document.getElementById('edit-cat').value, priority: document.getElementById('edit-pri').value, description: document.getElementById('edit-desc').value }
                 }
             });
-
             if (formValues) {
                 try {
                     await updateDoc(doc(db, "incidents", id), formValues);
@@ -813,7 +912,7 @@
         };
 
         document.getElementById('create-ticket-form').onsubmit = async (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
             Swal.fire({ title: currentLang==='th'?'กำลังส่งข้อมูล...':'Submitting...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             try {
                 await addDoc(collection(db, "incidents"), { category: document.getElementById('tk-category').value, priority: document.getElementById('tk-priority').value, subject: document.getElementById('tk-subject').value, description: document.getElementById('tk-desc').value, status: "New", assignedTo: "", callerEmail: auth.currentUser.email, createdAt: new Date() });
@@ -826,13 +925,11 @@
             currentTicketId = id; const t = window.globalTickets[id];
             
             document.getElementById('btn-modal-edit').style.display = isAdmin ? 'flex' : 'none';
-
             document.getElementById('modal-id').innerText = "TKT-" + id.substring(0, 4).toUpperCase();
             document.getElementById('modal-subject').innerText = t.subject;
             document.getElementById('modal-desc').innerText = t.description;
             document.getElementById('modal-cat').innerText = t.category;
             document.getElementById('modal-pri').innerText = t.priority.split('-')[1] || t.priority;
-            
             document.getElementById('modal-req-avatar').innerText = t.callerEmail.charAt(0).toUpperCase();
             document.getElementById('modal-req-name').innerText = t.callerEmail.split('@')[0];
 
@@ -850,6 +947,7 @@
                 snapshot.forEach(doc => {
                     const d = doc.data(); 
                     const timeStr = d.createdAt ? d.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    
                     if(d.senderEmail === 'system') {
                         html += `<div class="system-msg-container flex justify-center my-4"><span class="system-msg-pill shadow-sm"><i class="fas fa-cog mr-1 opacity-50"></i> ${d.text}</span></div>`;
                     } else {
@@ -867,14 +965,16 @@
         };
 
         window.closeModal = () => { 
-            const modal = document.getElementById('ticket-modal'); const box = document.getElementById('modal-box');
+            const modal = document.getElementById('ticket-modal');
+            const box = document.getElementById('modal-box');
             modal.style.opacity = '0'; box.classList.remove('scale-100'); box.classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
             if (chatUnsubscribe) chatUnsubscribe(); 
         };
 
         document.getElementById('chat-form').onsubmit = async (e) => {
-            e.preventDefault(); const i = document.getElementById('chat-input');
+            e.preventDefault();
+            const i = document.getElementById('chat-input');
             await addDoc(collection(db, "incidents", currentTicketId, "comments"), { text: i.value, senderEmail: auth.currentUser.email, createdAt: new Date() });
             i.value = '';
         };
@@ -883,7 +983,8 @@
             const tkts = Object.values(window.globalTickets);
             let csv = "data:text/csv;charset=utf-8,\uFEFFID,Requester,Assigned,Category,Priority,Status,Date,Subject\n";
             tkts.forEach(t => { csv += `TKT,${t.callerEmail},${t.assignedTo||'-'},${t.category},${t.priority},${t.status},${t.createdAt?.toDate().toLocaleString()},"${t.subject}"\n`; });
-            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `ITSM_Report_${new Date().toISOString().slice(0,10)}.csv`); link.click();
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `ITSM_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            link.click();
         };
 
         window.filterTickets = (tableId, inputId) => {
@@ -898,7 +999,10 @@
             const inact = "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition";
             ['All', 'Active', 'Resolved'].forEach(btn => { document.getElementById(`btn-filter-${btn}`).className = btn === f ? act : inact; });
             let trs = document.getElementById('admin-ticket-list').getElementsByTagName('tr');
-            for(let tr of trs) { let s = tr.getAttribute('data-status'); if(f === 'All') tr.style.display = ''; else if(f === 'Active' && s !== 'Resolved') tr.style.display = ''; else if(f === 'Resolved' && s === 'Resolved') tr.style.display = ''; else tr.style.display = 'none'; }
+            for(let tr of trs) { let s = tr.getAttribute('data-status'); if(f === 'All') tr.style.display = '';
+            else if(f === 'Active' && s !== 'Resolved') tr.style.display = '';
+            else if(f === 'Resolved' && s === 'Resolved') tr.style.display = ''; else tr.style.display = 'none';
+            }
         };
 
         document.getElementById('tk-priority').addEventListener('change', updatePriorityDesc);

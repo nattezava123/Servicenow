@@ -1122,15 +1122,23 @@
         };
 
         // --- Init Auth State ---
-        onAuthStateChanged(auth, (user) => {
+         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('auth-view').classList.remove('active');
                 document.getElementById('app-view').classList.add('active');
                 document.getElementById('user-email').innerText = user.email;
                 
-                isAdmin = user.email.includes("admin") || user.email.includes("it@");
+                // 🔴 แก้ไขบรรทัดนี้: ใส่อีเมลของคุณลงไปตรงนี้ได้เลยครับ
+                isAdmin = user.email === "ใส่อีเมลของคุณที่นี่@gmail.com" || user.email.includes("admin") || user.email.includes("it@");
+                
                 document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
-                if(isAdmin) document.getElementById('admin-menu').classList.remove('hidden');
+                
+                // เช็คว่าถ้าเป็นแอดมิน ให้แสดงเมนู Admin
+                if(isAdmin) {
+                    document.getElementById('admin-menu').classList.remove('hidden');
+                } else {
+                    document.getElementById('admin-menu').classList.add('hidden');
+                }
                 
                 loadDashboardData();
                 window.updatePriorityDesc();

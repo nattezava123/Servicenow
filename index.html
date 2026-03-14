@@ -600,21 +600,14 @@
                 document.getElementById('app-view').classList.add('active');
                 
                 // =========================================================
-                // ⚙️ ตั้งค่าสิทธิ์ Admin (เปิดให้ล็อกอินด้วย Google แล้วเป็น Admin ได้)
+                // ⚙️ ตั้งค่าสิทธิ์ Admin (เปิดให้เป็น Admin ทั้งจากคำว่า admin และอีเมลที่ระบุ)
                 // =========================================================
-
-                // ปิดการใช้งานแบบที่ 1 ไว้ (แบบเช็คคำว่า admin เฉยๆ)
-                // isAdmin = user.email.toLowerCase().includes('admin');
-
-                // แบบที่ 2: กำหนดให้เป็น Admin ได้ "หลายอีเมล" 
-                // เพิ่มอีเมลที่คุณล็อกอินด้วย Google ลงใน Array นี้ได้เลยครับ
                 const adminEmails = [
-                    'admin1@gmail.com', 
                     'nattezava1996@gmail.com', 
                     'your.ajarn@university.ac.th'
                 ];
-                isAdmin = adminEmails.includes(user.email.toLowerCase());
-                
+                // เป็น Admin ถ้ามีคำว่า "admin" อยู่ในอีเมล หรือ อีเมลตรงกับในลิสต์ด้านบน
+                isAdmin = user.email.toLowerCase().includes('admin') || adminEmails.includes(user.email.toLowerCase());
                 // =========================================================
 
                 const roleText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;

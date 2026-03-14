@@ -39,10 +39,10 @@
         }
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.1);
         }
 
         /* --- Sidebar & Menu (Enhanced Animations) --- */
@@ -56,46 +56,14 @@
             color: #94a3b8; 
         }
         
-        .menu-link i { 
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease; 
-        }
+        .menu-link i { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease; }
+        .menu-link:hover { background: rgba(255,255,255,0.08); color: white; transform: translateX(6px); }
+        .menu-link:hover i { transform: scale(1.2) rotate(5deg); color: #60a5fa; }
+        .menu-link.active { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; color: white !important; font-weight: 600; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transform: translateX(6px); }
+        .menu-link.active i { color: white; animation: activeIconPulse 2s infinite ease-in-out; }
+        .menu-link:active { transform: translateX(4px) scale(0.98); }
 
-        /* Hover Effects */
-        .menu-link:hover { 
-            background: rgba(255,255,255,0.08); 
-            color: white; 
-            transform: translateX(6px); /* เลื่อนขวาเบาๆ */
-        }
-        
-        .menu-link:hover i { 
-            transform: scale(1.2) rotate(5deg); /* ไอคอนเด้งและเอียงเล็กน้อย */
-            color: #60a5fa; 
-        }
-
-        /* Active State */
-        .menu-link.active { 
-            background: linear-gradient(135deg, #3b82f6, #2563eb) !important; 
-            color: white !important; 
-            font-weight: 600; 
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); 
-            transform: translateX(6px); 
-        }
-        
-        .menu-link.active i { 
-            color: white;
-            animation: activeIconPulse 2s infinite ease-in-out; /* อนิเมชั่นกระเพื่อม */
-        }
-
-        /* Click Press Effect */
-        .menu-link:active {
-            transform: translateX(4px) scale(0.98);
-        }
-
-        @keyframes activeIconPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
+        @keyframes activeIconPulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
         /* --- Chat Bubbles (iOS/Telegram Style) --- */
         #chat-messages { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
@@ -151,23 +119,35 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl mb-5 shadow-xl shadow-blue-500/40 transform transition hover:rotate-6">
                     <i class="fas fa-industry text-3xl text-white"></i>
                 </div>
-                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight leading-tight" id="auth-title" data-i18n="app_name">Factory IT Service Center System</h2>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight leading-tight" id="auth-title" data-i18n="app_name">Factory IT Service Center</h2>
                 <p class="text-slate-500 text-sm mt-2 font-medium" id="auth-subtitle" data-i18n="auth_sub">Enterprise Service Desk</p>
             </div>
-            <form id="auth-form" class="space-y-5">
+            
+            <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="block text-slate-700 font-bold mb-1.5 text-[10px] uppercase tracking-widest" data-i18n="email">Email</label>
-                    <input type="email" id="auth-email" class="w-full bg-white/80 border border-slate-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all" placeholder="name@company.com" required>
+                    <input type="email" id="auth-email" class="w-full bg-white/90 border border-slate-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all" placeholder="name@company.com" required>
                 </div>
                 <div>
                     <label class="block text-slate-700 font-bold mb-1.5 text-[10px] uppercase tracking-widest" data-i18n="password">Password</label>
-                    <input type="password" id="auth-password" class="w-full bg-white/80 border border-slate-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all" placeholder="••••••••" required>
+                    <input type="password" id="auth-password" class="w-full bg-white/90 border border-slate-200 rounded-xl px-4 py-3.5 text-sm outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all" placeholder="••••••••" required>
                 </div>
-                <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5" data-i18n="btn_signin">Sign In</button>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-0.5 mt-2" data-i18n="btn_signin">Sign In</button>
             </form>
+
+            <div class="mt-6 flex items-center relative justify-center">
+                <hr class="w-full border-slate-300">
+                <span class="absolute bg-[#e6eaf3] px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest rounded-full" data-i18n="auth_or" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);">OR</span>
+            </div>
+
+            <button onclick="loginWithGoogle()" type="button" class="w-full mt-6 bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
+                <span data-i18n="btn_google">Continue with Google</span>
+            </button>
+
             <div class="mt-8 text-center text-sm">
                 <span class="text-slate-500 font-medium" id="auth-switch-text" data-i18n="no_account">New here?</span> 
-                <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-blue-600 font-bold hover:text-blue-700 transition" data-i18n="btn_register">Create an account</button>
+                <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-blue-600 font-bold hover:text-blue-800 transition" data-i18n="btn_register">Create an account</button>
             </div>
         </div>
     </section>
@@ -181,7 +161,7 @@
             </div>
             <div class="p-6 my-2 mx-4 bg-slate-800/30 rounded-2xl border border-slate-700/50 backdrop-blur-md">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20"><i class="fas fa-user"></i></div>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20" id="sidebar-avatar"><i class="fas fa-user"></i></div>
                     <div class="overflow-hidden">
                         <div id="user-email" class="text-white font-bold truncate text-sm">User</div>
                         <div id="user-role" class="text-[9px] text-blue-400 font-black uppercase tracking-widest mt-0.5" data-i18n="role_user">User</div>
@@ -194,8 +174,11 @@
                 <a href="#" onclick="switchTab('incidents')" class="flex items-center menu-link"><i class="fas fa-layer-group w-8 text-lg opacity-80"></i> <span data-i18n="menu_incidents" class="font-medium text-sm">My Tickets</span></a>
                 <a href="#" onclick="switchTab('create')" class="flex items-center menu-link"><i class="fas fa-plus-circle w-8 text-lg opacity-80"></i> <span data-i18n="menu_create" class="font-medium text-sm">Create Ticket</span></a>
                 
+                <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-6 mb-3" data-i18n="menu_group_settings">Settings</p>
+                <a href="#" onclick="switchTab('profile')" class="flex items-center menu-link"><i class="fas fa-user-cog w-8 text-lg opacity-80"></i> <span data-i18n="menu_profile" class="font-medium text-sm">My Account</span></a>
+
                 <div id="admin-menu" class="hidden">
-                    <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-8 mb-3" data-i18n="menu_group_2">Admin</p>
+                    <p class="px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 mt-6 mb-3" data-i18n="menu_group_2">Admin</p>
                     <a href="#" onclick="switchTab('admin')" class="flex items-center menu-link text-indigo-400"><i class="fas fa-shield-halved w-8 text-lg opacity-80"></i> <span data-i18n="menu_admin" class="font-medium text-sm">Command Center</span></a>
                 </div>
             </nav>
@@ -317,6 +300,44 @@
                     </div>
                 </div>
 
+                <div id="tab-profile" class="tab-content max-w-3xl mx-auto">
+                    <div class="bg-white p-8 md:p-10 rounded-[2rem] shadow-sm border border-slate-200 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-bl-full -z-10"></div>
+                        <div class="flex items-center gap-6 mb-8">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-3xl shadow-lg shadow-indigo-500/20" id="profile-avatar"><i class="fas fa-user"></i></div>
+                            <div>
+                                <h2 class="text-2xl font-extrabold text-slate-800" data-i18n="profile_title">Account Info</h2>
+                                <p class="text-slate-500 text-sm mt-1" data-i18n="profile_sub">Manage your personal details</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="profile_email">Email Address (Username)</label>
+                                <div class="flex gap-3">
+                                    <input type="email" id="profile-email-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 focus:bg-white text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
+                                    <button onclick="updateMyEmail()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-sm whitespace-nowrap text-sm" data-i18n="btn_update">Update</button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="profile_new_pwd">New Password</label>
+                                <div class="flex gap-3">
+                                    <input type="password" id="profile-password-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 focus:bg-white text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="••••••••">
+                                    <button onclick="updateMyPassword()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-3.5 rounded-xl transition shadow-sm whitespace-nowrap text-sm" data-i18n="btn_update">Update</button>
+                                </div>
+                            </div>
+                            
+                            <hr class="border-slate-100 my-4">
+                            
+                            <div>
+                                <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="profile_role">Account Role</label>
+                                <input type="text" id="profile-role-display" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-100 text-sm font-bold text-slate-400 uppercase cursor-not-allowed" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="tab-admin" class="tab-content max-w-7xl mx-auto">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-500/20 col-span-1 md:col-span-2 flex justify-between items-center text-white">
@@ -325,6 +346,14 @@
                                 <p class="text-4xl font-black flex items-center gap-3"><i class="fas fa-trophy text-amber-300"></i> <span id="stat-admin-my-resolved">0</span></p>
                             </div>
                             <button onclick="exportCSV()" class="bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"><i class="fas fa-download mr-2"></i> <span data-i18n="btn_export">Export CSV</span></button>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 col-span-1 flex flex-col justify-center">
+                            <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2" data-i18n="admin_user_mgt">Manage User Passwords</p>
+                            <div class="flex gap-2 mt-1">
+                                <input type="email" id="admin-reset-email" placeholder="User Email..." class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <button onclick="adminResetUserPassword()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap" data-i18n="btn_reset_pwd">Send Reset</button>
+                            </div>
                         </div>
                     </div>
                     
@@ -359,38 +388,41 @@
                     <div id="modal-status-badge"></div>
                     <h3 class="font-black text-xl text-slate-800 tracking-tight" id="modal-id">ID</h3>
                 </div>
-                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition"><i class="fas fa-times"></i></button>
+                <div class="flex items-center gap-2">
+                    <button id="btn-modal-edit" onclick="editTicket(currentTicketId)" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition shadow-sm"><i class="fas fa-edit"></i></button>
+                    <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition"><i class="fas fa-times"></i></button>
+                </div>
             </div>
             
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden modal-content-wrapper bg-slate-50">
                 <div class="w-full md:w-[35%] p-6 md:p-8 bg-white overflow-y-auto modal-details border-r border-slate-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
                     <div class="mb-6">
-                        <span class="detail-label">Subject</span>
+                        <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Subject</span>
                         <h4 class="font-extrabold text-slate-800 text-lg leading-snug" id="modal-subject">Subject</h4>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="detail-label !mb-1">Category</span>
+                            <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Category</span>
                             <span class="font-bold text-sm text-slate-700 truncate block" id="modal-cat">CAT</span>
                         </div>
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <span class="detail-label !mb-1">Priority</span>
+                            <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Priority</span>
                             <span class="font-bold text-sm text-rose-600 truncate block" id="modal-pri">PRI</span>
                         </div>
                     </div>
                     
                     <div class="mb-6">
-                        <span class="detail-label">Reporter</span>
-                        <div class="flex items-center gap-3">
+                        <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Reporter</span>
+                        <div class="flex items-center gap-3 mt-2">
                             <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase" id="modal-req-avatar">U</div>
                             <div class="text-sm font-semibold text-slate-700" id="modal-req-name">User</div>
                         </div>
                     </div>
 
                     <div>
-                        <span class="detail-label">Description</span>
-                        <div class="detail-box" id="modal-desc">Desc</div>
+                        <span class="detail-label text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">Description</span>
+                        <div class="text-sm text-slate-600 mt-2 whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" id="modal-desc">Desc</div>
                     </div>
                 </div>
                 
@@ -416,7 +448,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // เพิ่ม GoogleAuthProvider และ signInWithPopup
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, updateEmail, updatePassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ⚠️ ใส่ Config Firebase ของคุณตรงนี้
@@ -433,38 +466,58 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        // ตัวแปรสำหรับ Google Login
+        const googleProvider = new GoogleAuthProvider();
 
-        // --- Custom SweetAlert Theme ---
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        // --- Time Formatter (Relative Time) ---
         function timeAgo(date) {
             if(!date) return '-';
             const seconds = Math.floor((new Date() - date) / 1000);
-            let interval = seconds / 31536000;
-            if (interval > 1) return Math.floor(interval) + "y ago";
-            interval = seconds / 2592000;
-            if (interval > 1) return Math.floor(interval) + "mo ago";
-            interval = seconds / 86400;
-            if (interval > 1) return Math.floor(interval) + "d ago";
-            interval = seconds / 3600;
-            if (interval > 1) return Math.floor(interval) + "h ago";
-            interval = seconds / 60;
-            if (interval > 1) return Math.floor(interval) + "m ago";
+            let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago";
+            interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago";
+            interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago";
+            interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago";
+            interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago";
             return "Just now";
         }
 
-        // --- Translations ---
         const dict = {
-            en: { app_name: "Factory IT Service Center System", app_name_short: "Factory IT Service Center", auth_sub: "Enterprise Service Desk", email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", role_user: "Requester", role_admin: "Support Agent", menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_admin: "Command Center", btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV" },
-            th: { app_name: "ศูนย์บริการไอทีโรงงาน", app_name_short: "ศูนย์บริการไอทีโรงงาน", auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_admin: "ศูนย์จัดการงาน", btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV" }
+            en: { 
+                app_name: "Factory IT Service Center", app_name_short: "Factory IT Service Center", auth_sub: "Enterprise Service Desk", 
+                email: "Work Email", password: "Password", btn_signin: "Sign In", no_account: "Need access?", btn_register: "Create Account", 
+                auth_or: "OR", btn_google: "Continue with Google",
+                role_user: "Requester", role_admin: "Support Agent", menu_group_1: "Workspace", menu_group_settings: "Settings", menu_group_2: "Admin",
+                menu_dash: "Overview", menu_incidents: "My Tickets", menu_create: "New Request", menu_profile: "My Account", menu_admin: "Command Center", 
+                btn_logout: "Sign Out", stat_open: "Open", stat_progress: "Active", stat_resolved: "Resolved", stat_total: "Total Volume", 
+                admin_my_resolved: "My Resolved", th_subject: "Subject & Details", th_status: "Status", th_date: "Updated", btn_submit: "Submit Request", 
+                search_placeholder: "Search ID or keyword...", btn_new_ticket: "New Request", form_title: "How can we help?", form_sub: "Fill out the details to get support.", 
+                form_cat: "Category", form_pri: "Priority", form_short: "Subject", form_desc: "Description", btn_export: "Export CSV",
+                profile_title: "Account Info", profile_sub: "Manage your personal details", profile_email: "Email (Username)", profile_new_pwd: "New Password", btn_update: "Update",
+                profile_role: "Account Role", profile_security: "Security", btn_req_pwd_reset: "Request Password Reset",
+                admin_user_mgt: "Manage User Passwords", btn_reset_pwd: "Send Reset Link"
+            },
+            th: { 
+                app_name: "ศูนย์บริการไอทีโรงงาน", app_name_short: "ศูนย์บริการไอทีโรงงาน", auth_sub: "ระบบแจ้งซ่อมไอทีองค์กร", 
+                email: "อีเมล", password: "รหัสผ่าน", btn_signin: "เข้าสู่ระบบ", no_account: "ยังไม่มีบัญชี?", btn_register: "สมัครสมาชิก", 
+                auth_or: "หรือ", btn_google: "ดำเนินการต่อด้วย Google",
+                role_user: "ผู้แจ้ง", role_admin: "เจ้าหน้าที่ไอที", menu_group_1: "พื้นที่ทำงาน", menu_group_settings: "ตั้งค่า", menu_group_2: "ผู้ดูแลระบบ",
+                menu_dash: "ภาพรวมระบบ", menu_incidents: "ตั๋วของฉัน", menu_create: "แจ้งปัญหาใหม่", menu_profile: "บัญชีของฉัน", menu_admin: "ศูนย์จัดการงาน", 
+                btn_logout: "ออกจากระบบ", stat_open: "รอดำเนินการ", stat_progress: "กำลังแก้ไข", stat_resolved: "ปิดงานแล้ว", stat_total: "จำนวนทั้งหมด", 
+                admin_my_resolved: "งานที่ฉันปิดแล้ว", th_subject: "หัวข้อ", th_status: "สถานะ", th_date: "อัปเดตล่าสุด", btn_submit: "ส่งเรื่องแจ้งซ่อม", 
+                search_placeholder: "ค้นหา...", btn_new_ticket: "สร้างตั๋วใหม่", form_title: "มีอะไรให้เราช่วยไหม?", form_sub: "ระบุรายละเอียดเพื่อให้ไอทีช่วยเหลือคุณ", 
+                form_cat: "หมวดหมู่", form_pri: "ความเร่งด่วน", form_short: "หัวข้อ", form_desc: "รายละเอียด", btn_export: "ดาวน์โหลด CSV",
+                profile_title: "ข้อมูลบัญชี", profile_sub: "จัดการข้อมูลส่วนตัวของคุณ", profile_email: "อีเมล (ชื่อผู้ใช้)", profile_new_pwd: "ตั้งรหัสผ่านใหม่", btn_update: "อัปเดตข้อมูล",
+                profile_role: "สิทธิ์การใช้งาน", profile_security: "ความปลอดภัย", btn_req_pwd_reset: "ขอเปลี่ยนรหัสผ่าน",
+                admin_user_mgt: "จัดการรหัสผ่านพนักงาน", btn_reset_pwd: "ส่งลิงก์รีเซ็ต"
+            }
         };
 
         let currentLang = localStorage.getItem('appLang') || 'en';
         let isAdmin = false; let isLoginMode = true; let currentAdminFilter = 'All';
         window.globalTickets = {}; let currentTicketId = null; let chatUnsubscribe = null;
 
-        // --- Core UI Logic ---
         window.toggleMobileMenu = () => {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -475,10 +528,14 @@
             document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if(dict[lang][k]) el.innerHTML = dict[lang][k]; });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.getAttribute('data-i18n-placeholder'); if(dict[lang][k]) el.placeholder = dict[lang][k]; });
             
-            const btnEn = document.getElementById('lang-en-app'); const btnTh = document.getElementById('lang-th-app');
-            if(lang === 'en') { btnEn.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnTh.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
-            else { btnTh.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnEn.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
+            const btnEn = document.getElementById('lang-en-auth'); const btnTh = document.getElementById('lang-th-auth');
+            if(lang === 'en') { btnEn.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105"; btnTh.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105"; }
+            else { btnTh.className = "px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg shadow-blue-500/30 transition transform hover:scale-105"; btnEn.className = "px-4 py-1.5 bg-white/10 text-white backdrop-blur rounded-full border border-white/20 text-xs font-bold hover:bg-white/20 transition transform hover:scale-105"; }
             
+            const btnEnApp = document.getElementById('lang-en-app'); const btnThApp = document.getElementById('lang-th-app');
+            if(lang === 'en') { btnEnApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnThApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
+            else { btnThApp.className = "px-4 py-1.5 bg-white text-blue-600 rounded-full text-xs font-bold shadow-sm transition"; btnEnApp.className = "px-4 py-1.5 text-slate-500 hover:text-slate-700 rounded-full text-xs font-bold transition"; }
+
             updatePriorityDesc();
             if(!document.getElementById('app-view').classList.contains('active')) {
                 document.getElementById('auth-title').innerText = dict[currentLang].app_name;
@@ -487,28 +544,10 @@
 
         const updatePriorityDesc = () => {
             const val = document.getElementById('tk-priority').value;
-            const thTexts = {
-                "4 - Low": "● กระทบการทำงานเล็กน้อย - SLA: แก้ไขภายใน 3 วัน", 
-                "3 - Moderate": "● กระทบแผนก - SLA: แก้ไขภายใน 24 ชม.", 
-                "2 - High": "● กระทบวงกว้าง - SLA: แก้ไขภายใน 4 ชม.", 
-                "1 - Critical": "● ระบบหลักล่ม - SLA: แก้ไขภายใน 1 ชม."
-            };
-            const enTexts = {
-                "4 - Low": "● Individual impact - SLA: 3 Days", 
-                "3 - Moderate": "● Department impact - SLA: 24 Hours", 
-                "2 - High": "● Business degraded - SLA: 4 Hours", 
-                "1 - Critical": "● Total failure - SLA: 1 Hour"
-            };
-            
-            const descColors = {
-                "4 - Low": "bg-emerald-50/50 border-emerald-100 text-emerald-800",
-                "3 - Moderate": "bg-amber-50/50 border-amber-100 text-amber-800",
-                "2 - High": "bg-orange-50/50 border-orange-100 text-orange-800",
-                "1 - Critical": "bg-rose-50/50 border-rose-100 text-rose-800"
-            };
-            const iconColors = {
-                "4 - Low": "text-emerald-500", "3 - Moderate": "text-amber-500", "2 - High": "text-orange-500", "1 - Critical": "text-rose-500"
-            };
+            const thTexts = { "4 - Low": "● กระทบการทำงานเล็กน้อย - SLA: แก้ไขภายใน 3 วัน", "3 - Moderate": "● กระทบแผนก - SLA: แก้ไขภายใน 24 ชม.", "2 - High": "● กระทบวงกว้าง - SLA: แก้ไขภายใน 4 ชม.", "1 - Critical": "● ระบบหลักล่ม - SLA: แก้ไขภายใน 1 ชม." };
+            const enTexts = { "4 - Low": "● Individual impact - SLA: 3 Days", "3 - Moderate": "● Department impact - SLA: 24 Hours", "2 - High": "● Business degraded - SLA: 4 Hours", "1 - Critical": "● Total failure - SLA: 1 Hour" };
+            const descColors = { "4 - Low": "bg-emerald-50/50 border-emerald-100 text-emerald-800", "3 - Moderate": "bg-amber-50/50 border-amber-100 text-amber-800", "2 - High": "bg-orange-50/50 border-orange-100 text-orange-800", "1 - Critical": "bg-rose-50/50 border-rose-100 text-rose-800" };
+            const iconColors = { "4 - Low": "text-emerald-500", "3 - Moderate": "text-amber-500", "2 - High": "text-orange-500", "1 - Critical": "text-rose-500" };
 
             document.getElementById('priority-text').innerText = currentLang === 'th' ? thTexts[val] : enTexts[val];
             document.getElementById('priority-desc').className = `p-4 rounded-xl border text-xs flex gap-3 items-start transition-colors ${descColors[val]}`;
@@ -526,19 +565,88 @@
 
         window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? dict[currentLang].app_name : (currentLang === 'th' ? "สมัครสมาชิก" : "Create Account");
             document.getElementById('auth-submit-btn').innerText = isLoginMode ? dict[currentLang].btn_signin : dict[currentLang].btn_register;
+            document.getElementById('auth-switch-text').innerText = isLoginMode ? (currentLang === 'th' ? "ยังไม่มีบัญชี?" : "New here?") : (currentLang === 'th' ? "มีบัญชีแล้ว?" : "Already have an account?");
+            document.getElementById('auth-switch-btn').innerText = isLoginMode ? dict[currentLang].btn_register : dict[currentLang].btn_signin;
         };
 
-        // --- Firebase Auth ---
+        // --- ฟังก์ชัน Google Sign-In ---
+        window.loginWithGoogle = async () => {
+            Swal.fire({ title: currentLang==='th'?'กำลังเชื่อมต่อ...':'Connecting...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+            try {
+                await signInWithPopup(auth, googleProvider);
+                Swal.close();
+            } catch (error) {
+                Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' });
+            }
+        };
+
+        window.updateMyEmail = async () => {
+            const newEmail = document.getElementById('profile-email-input').value;
+            if(!newEmail || newEmail === auth.currentUser.email) return;
+            try {
+                Swal.fire({ title: currentLang==='th'?'กำลังบันทึก...':'Updating...', didOpen: () => Swal.showLoading() });
+                await updateEmail(auth.currentUser, newEmail);
+                Swal.fire({ icon: 'success', title: currentLang==='th'?'อัปเดตอีเมลสำเร็จ':'Email updated successfully' });
+                document.getElementById('user-email').innerText = newEmail.split('@')[0];
+            } catch(e) {
+                if(e.code === 'auth/requires-recent-login') { Swal.fire({ icon: 'warning', text: currentLang==='th'?'เพื่อความปลอดภัย กรุณาออกจากระบบแล้วเข้าใหม่ก่อนทำการเปลี่ยนอีเมล':'For security, please log out and log in again to update your email.' }); } 
+                else { Swal.fire({ icon: 'error', text: e.message }); }
+            }
+        };
+
+        window.updateMyPassword = async () => {
+            const newPass = document.getElementById('profile-password-input').value;
+            if(!newPass || newPass.length < 6) { Swal.fire({ icon: 'warning', text: currentLang==='th'?'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร':'Password must be at least 6 characters.' }); return; }
+            try {
+                Swal.fire({ title: currentLang==='th'?'กำลังบันทึก...':'Updating...', didOpen: () => Swal.showLoading() });
+                await updatePassword(auth.currentUser, newPass);
+                Swal.fire({ icon: 'success', title: currentLang==='th'?'เปลี่ยนรหัสผ่านสำเร็จ':'Password updated successfully' });
+                document.getElementById('profile-password-input').value = '';
+            } catch(e) {
+                if(e.code === 'auth/requires-recent-login') { Swal.fire({ icon: 'warning', text: currentLang==='th'?'เพื่อความปลอดภัย กรุณาออกจากระบบแล้วเข้าใหม่ก่อนทำการเปลี่ยนรหัสผ่าน':'For security, please log out and log in again to update your password.' }); } 
+                else { Swal.fire({ icon: 'error', text: e.message }); }
+            }
+        };
+
+        window.adminResetUserPassword = async () => {
+            const email = document.getElementById('admin-reset-email').value;
+            if(!email) { Swal.fire({ icon: 'warning', text: currentLang==='th'?'กรุณากรอกอีเมลของพนักงานที่ต้องการเปลี่ยนรหัสผ่าน':'Please enter the user\'s email' }); return; }
+            try {
+                Swal.fire({ title: currentLang==='th'?'กำลังดำเนินการ...':'Processing...', didOpen: () => Swal.showLoading() });
+                await sendPasswordResetEmail(auth, email);
+                Swal.fire({ icon: 'success', title: currentLang==='th'?'สำเร็จ!':'Success!', text: currentLang==='th'?`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${email} เรียบร้อยแล้ว`:`Reset link sent to ${email} successfully.` });
+                document.getElementById('admin-reset-email').value = '';
+            } catch(e) {
+                let errorMsg = e.message; if(e.code === 'auth/user-not-found') { errorMsg = currentLang==='th'?'ไม่พบพนักงานที่ใช้อีเมลนี้ในระบบ':'User email not found in our system.'; }
+                Swal.fire({ icon: 'error', text: errorMsg });
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('auth-view').classList.remove('active');
                 document.getElementById('app-view').classList.add('active');
-                document.getElementById('user-email').innerText = user.email.split('@')[0];
+                
+                const roleText = user.email.toLowerCase().includes('admin') ? dict[currentLang].role_admin : dict[currentLang].role_user;
                 isAdmin = user.email.toLowerCase().includes('admin');
+                
+                document.getElementById('user-email').innerText = user.email.split('@')[0];
+                document.getElementById('user-role').innerText = roleText;
                 if(isAdmin) document.getElementById('admin-menu').classList.remove('hidden');
-                document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
+                
+                // ดึงรูปโปรไฟล์จาก Google (ถ้ามี)
+                if(user.photoURL) {
+                    document.getElementById('sidebar-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full rounded-full object-cover">`;
+                    document.getElementById('profile-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full rounded-full object-cover">`;
+                } else {
+                    document.getElementById('sidebar-avatar').innerHTML = `<i class="fas fa-user"></i>`;
+                    document.getElementById('profile-avatar').innerHTML = `<i class="fas fa-user"></i>`;
+                }
+
+                document.getElementById('profile-email-input').value = user.email;
+                document.getElementById('profile-role-display').value = roleText;
+                
                 loadDashboardData();
             } else {
                 document.getElementById('app-view').classList.remove('active');
@@ -561,7 +669,6 @@
             .then((result) => { if (result.isConfirmed) { signOut(auth).then(() => window.location.reload()); } });
         };
 
-        // --- Core Data Loading ---
         function loadDashboardData() {
             const q = query(collection(db, "incidents"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -578,10 +685,8 @@
                     
                     if(t.status === 'Resolved' && t.assignedTo === auth.currentUser.email) myResolved++;
                     
-                    // Badges
                     const bgColors = { 'New': 'bg-blue-100 text-blue-700', 'In Progress': 'bg-amber-100 text-amber-700', 'Resolved': 'bg-emerald-100 text-emerald-700' };
                     let statusHtml = `<span class="${bgColors[t.status]} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">${t.status}</span>`;
-                    
                     let priIndicator = t.priority.includes('1') ? `<span class="inline-block w-2 h-2 rounded-full bg-rose-500 animate-pulse mr-2"></span>` : ``;
                     let timeStr = timeAgo(t.createdAt?.toDate());
 
@@ -600,18 +705,17 @@
                             <td class="py-4 px-4 cursor-pointer" onclick="openModal('${id}')"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
                             <td class="py-4 px-4 text-xs font-bold text-slate-600">${t.assignedTo ? t.assignedTo.split('@')[0].toUpperCase() : '-'}</td>
                             <td class="py-4 px-4">${statusHtml}</td>
-                            <td class="py-4 px-4 text-right opacity-0 group-hover:opacity-100 transition">
-                                <button onclick="updateTicket('${id}', 'In Progress')" class="w-8 h-8 bg-white border border-amber-200 text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm mr-1" title="Start"><i class="fas fa-play text-xs"></i></button>
-                                <button onclick="updateTicket('${id}', 'Resolved')" class="w-8 h-8 bg-white border border-emerald-200 text-emerald-500 rounded-lg hover:bg-emerald-50 transition shadow-sm" title="Resolve"><i class="fas fa-check text-xs"></i></button>
+                            <td class="py-4 px-4 text-right opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                                <button onclick="event.stopPropagation(); editTicket('${id}')" class="w-8 h-8 bg-white border border-blue-200 text-blue-500 rounded-lg hover:bg-blue-50 transition shadow-sm mr-1" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                                <button onclick="event.stopPropagation(); updateTicket('${id}', 'In Progress')" class="w-8 h-8 bg-white border border-amber-200 text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm mr-1" title="Start"><i class="fas fa-play text-xs"></i></button>
+                                <button onclick="event.stopPropagation(); updateTicket('${id}', 'Resolved')" class="w-8 h-8 bg-white border border-emerald-200 text-emerald-500 rounded-lg hover:bg-emerald-50 transition shadow-sm mr-2" title="Resolve"><i class="fas fa-check text-xs"></i></button>
+                                <button onclick="event.stopPropagation(); deleteTicket('${id}')" class="w-8 h-8 bg-white border border-rose-200 text-rose-500 rounded-lg hover:bg-rose-50 transition shadow-sm" title="Delete"><i class="fas fa-trash text-xs"></i></button>
                             </td></tr>`;
                     }
                 });
                 
-                // Animate Numbers
-                document.getElementById('stat-new').innerText = counts['New'];
-                document.getElementById('stat-progress').innerText = counts['In Progress'];
-                document.getElementById('stat-resolved').innerText = counts['Resolved'];
-                document.getElementById('stat-total').innerText = counts['Total'];
+                document.getElementById('stat-new').innerText = counts['New']; document.getElementById('stat-progress').innerText = counts['In Progress'];
+                document.getElementById('stat-resolved').innerText = counts['Resolved']; document.getElementById('stat-total').innerText = counts['Total'];
                 
                 if(isAdmin) { 
                     document.getElementById('stat-admin-my-resolved').innerText = myResolved; 
@@ -622,13 +726,88 @@
             });
         }
 
-        // --- Ticket Actions ---
         window.updateTicket = async (docId, newStatus) => {
             try {
                 await updateDoc(doc(db, "incidents", docId), { status: newStatus, assignedTo: auth.currentUser.email });
                 await addDoc(collection(db, "incidents", docId, "comments"), { text: `Status updated to ${newStatus}`, senderEmail: "system", createdAt: new Date() });
                 Toast.fire({ icon: 'success', title: `Moved to ${newStatus}` });
             } catch (err) { Toast.fire({ icon: 'error', title: err.message }); }
+        };
+
+        window.deleteTicket = (docId) => {
+            Swal.fire({
+                title: currentLang === 'th' ? 'ยืนยันการลบตั๋ว?' : 'Delete this ticket?',
+                text: currentLang === 'th' ? 'ลบแล้วจะไม่สามารถกู้คืนข้อมูลได้' : 'You won\'t be able to revert this!',
+                icon: 'warning', showCancelButton: true, confirmButtonColor: '#e11d48',
+                confirmButtonText: currentLang === 'th' ? 'ใช่, ลบเลย' : 'Yes, delete it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await deleteDoc(doc(db, "incidents", docId));
+                        Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'ลบข้อมูลสำเร็จ' : 'Deleted successfully' });
+                    } catch (err) { Swal.fire({ icon: 'error', text: err.message }); }
+                }
+            });
+        };
+
+        window.editTicket = async (id) => {
+            const t = window.globalTickets[id];
+            const { value: formValues } = await Swal.fire({
+                title: currentLang === 'th' ? 'แก้ไขข้อมูลตั๋ว' : 'Edit Ticket',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Subject</label>
+                            <input id="edit-subj" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.subject}">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Category</label>
+                                <select id="edit-cat" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                    <option value="Hardware" ${t.category==='Hardware'?'selected':''}>Hardware</option>
+                                    <option value="Software" ${t.category==='Software'?'selected':''}>Software</option>
+                                    <option value="Network" ${t.category==='Network'?'selected':''}>Network</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Priority</label>
+                                <select id="edit-pri" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+                                    <option value="4 - Low" ${t.priority==='4 - Low'?'selected':''}>Low</option>
+                                    <option value="3 - Moderate" ${t.priority==='3 - Moderate'?'selected':''}>Moderate</option>
+                                    <option value="2 - High" ${t.priority==='2 - High'?'selected':''}>High</option>
+                                    <option value="1 - Critical" ${t.priority==='1 - Critical'?'selected':''}>Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Description</label>
+                            <textarea id="edit-desc" rows="4" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-blue-500/20 outline-none">${t.description}</textarea>
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: currentLang === 'th' ? 'บันทึกข้อมูล' : 'Save Changes',
+                cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
+                preConfirm: () => {
+                    return {
+                        subject: document.getElementById('edit-subj').value,
+                        category: document.getElementById('edit-cat').value,
+                        priority: document.getElementById('edit-pri').value,
+                        description: document.getElementById('edit-desc').value
+                    }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await updateDoc(doc(db, "incidents", id), formValues);
+                    await addDoc(collection(db, "incidents", id, "comments"), { text: currentLang === 'th' ? 'แอดมินแก้ไขรายละเอียดตั๋ว' : 'Admin updated ticket details.', senderEmail: "system", createdAt: new Date() });
+                    Toast.fire({ icon: 'success', title: currentLang==='th'?'อัปเดตสำเร็จ':'Updated successfully' });
+                    if(currentTicketId === id && !document.getElementById('ticket-modal').classList.contains('hidden')) { openModal(id); }
+                } catch(e) { Swal.fire({icon: 'error', text: e.message}); }
+            }
         };
 
         document.getElementById('create-ticket-form').onsubmit = async (e) => {
@@ -641,10 +820,11 @@
             } catch(err) { Swal.fire({ icon: 'error', text: err.message }); }
         };
 
-        // --- Chat Modal Logic ---
         window.openModal = (id) => {
             currentTicketId = id; const t = window.globalTickets[id];
             
+            document.getElementById('btn-modal-edit').style.display = isAdmin ? 'flex' : 'none';
+
             document.getElementById('modal-id').innerText = "TKT-" + id.substring(0, 4).toUpperCase();
             document.getElementById('modal-subject').innerText = t.subject;
             document.getElementById('modal-desc').innerText = t.description;
@@ -657,20 +837,17 @@
             const badgeColor = t.status === 'New' ? 'blue' : t.status === 'In Progress' ? 'amber' : 'emerald';
             document.getElementById('modal-status-badge').innerHTML = `<span class="bg-${badgeColor}-500 w-2.5 h-2.5 rounded-full inline-block shadow-[0_0_8px_rgba(0,0,0,0.3)] shadow-${badgeColor}-500"></span>`;
 
-            // Show Modal with Animation
             const modal = document.getElementById('ticket-modal');
             const box = document.getElementById('modal-box');
             modal.classList.remove('hidden');
             setTimeout(() => { modal.style.opacity = '1'; box.classList.remove('scale-95'); box.classList.add('scale-100'); }, 10);
 
-            // Load Chat
             const q = query(collection(db, "incidents", id, "comments"), orderBy("createdAt", "asc"));
             chatUnsubscribe = onSnapshot(q, (snapshot) => {
                 let html = "";
                 snapshot.forEach(doc => {
                     const d = doc.data(); 
                     const timeStr = d.createdAt ? d.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    
                     if(d.senderEmail === 'system') {
                         html += `<div class="system-msg-container flex justify-center my-4"><span class="system-msg-pill shadow-sm"><i class="fas fa-cog mr-1 opacity-50"></i> ${d.text}</span></div>`;
                     } else {
@@ -678,14 +855,7 @@
                         const align = isMe ? 'items-end' : 'items-start';
                         const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
                         const name = isMe ? (currentLang === 'th' ? 'ฉัน' : 'You') : d.senderEmail.split('@')[0];
-                        
-                        html += `<div class="flex flex-col ${align} w-full">
-                                    <div class="chat-bubble ${style}">
-                                        <div class="chat-sender-name">${name}</div>
-                                        <div>${d.text}</div>
-                                        <div class="text-[9px] mt-1 opacity-60 text-right w-full">${timeStr}</div>
-                                    </div>
-                                 </div>`;
+                        html += `<div class="flex flex-col ${align} w-full"><div class="chat-bubble ${style}"><div class="chat-sender-name">${name}</div><div>${d.text}</div><div class="text-[9px] mt-1 opacity-60 text-right w-full">${timeStr}</div></div></div>`;
                     }
                 });
                 const chatBox = document.getElementById('chat-messages');
@@ -695,8 +865,7 @@
         };
 
         window.closeModal = () => { 
-            const modal = document.getElementById('ticket-modal');
-            const box = document.getElementById('modal-box');
+            const modal = document.getElementById('ticket-modal'); const box = document.getElementById('modal-box');
             modal.style.opacity = '0'; box.classList.remove('scale-100'); box.classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
             if (chatUnsubscribe) chatUnsubscribe(); 
@@ -708,7 +877,6 @@
             i.value = '';
         };
 
-        // --- Utils ---
         window.exportCSV = () => {
             const tkts = Object.values(window.globalTickets);
             let csv = "data:text/csv;charset=utf-8,\uFEFFID,Requester,Assigned,Category,Priority,Status,Date,Subject\n";
@@ -724,14 +892,13 @@
 
         window.setAdminFilter = (f) => {
             currentAdminFilter = f;
-            const activeClass = "px-5 py-2 rounded-lg text-xs font-bold bg-white shadow-sm text-slate-800 transition";
-            const inactiveClass = "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition";
-            ['All', 'Active', 'Resolved'].forEach(btn => { document.getElementById(`btn-filter-${btn}`).className = btn === f ? activeClass : inactiveClass; });
+            const act = "px-5 py-2 rounded-lg text-xs font-bold bg-white shadow-sm text-slate-800 transition";
+            const inact = "px-5 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition";
+            ['All', 'Active', 'Resolved'].forEach(btn => { document.getElementById(`btn-filter-${btn}`).className = btn === f ? act : inact; });
             let trs = document.getElementById('admin-ticket-list').getElementsByTagName('tr');
             for(let tr of trs) { let s = tr.getAttribute('data-status'); if(f === 'All') tr.style.display = ''; else if(f === 'Active' && s !== 'Resolved') tr.style.display = ''; else if(f === 'Resolved' && s === 'Resolved') tr.style.display = ''; else tr.style.display = 'none'; }
         };
 
-        // Initialize App
         document.getElementById('tk-priority').addEventListener('change', updatePriorityDesc);
         toggleLang(currentLang);
     </script>

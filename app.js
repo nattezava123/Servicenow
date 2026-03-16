@@ -1,9 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-// 🔴 นำเข้า Storage สำหรับอัปโหลดรูปภาพ
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+// ⚠️ ใส่ Config Firebase ของคุณตรงนี้
 const firebaseConfig = {
     apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
     authDomain: "servicenow-2b0cd.firebaseapp.com",
@@ -17,10 +16,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app); // เรียกใช้ Storage
 const googleProvider = new GoogleAuthProvider();
 
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+
+// --- ฟังก์ชันใหม่: ย่อขนาดรูปและแปลงเป็นตัวหนังสือ (Base64) เพื่อแก้ปัญหา CORS ---
+function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                // คำนวณอัตราส่วนเพื่อย่อขนาดรูป
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+
+                // วาดรูปลง Canvas เพื่อบีบอัด
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // แปลงเป็นไฟล์ JPEG และลดคุณภาพลงเหลือ 70% เพื่อประหยัดพื้นที่
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(dataUrl);
+            };
+        };
+        reader.onerror = (error) => reject(error);
+    });
+}
 
 function timeAgo(date) {
     if(!date) return '-';
@@ -406,7 +442,6 @@ function loadDashboardData() {
 
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
 
-            // แสดงไอคอนรูปภาพในตาราง ถ้าตั๋วนั้นมีรูปแนบมาด้วย
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
             if (t.callerEmail === auth.currentUser.email) {
@@ -465,11 +500,10 @@ function loadDashboardData() {
     });
 }
 
-// 🔴 อัปเดตการสร้างตั๋ว ป้องกันคลิกเบิ้ล + อัปโหลดรูป 
+// 🔴 อัปเดตตอนสร้างตั๋ว (ใช้ Base64 ไม่พึ่ง Storage)
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
     
-    // 1. ล็อกปุ่มป้องกันคลิกเบิ้ล
     const submitBtn = document.getElementById('btn-create-submit');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
@@ -477,16 +511,13 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
     try {
         let uploadedImageUrl = null;
         
-        // 2. เช็คว่ามีการแนบรูปไหม ถ้ามีให้อัปโหลดเข้า Firebase Storage ก่อน
         const fileInput = document.getElementById('tk-image');
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            const storageRef = ref(storage, `tickets/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef, file);
-            uploadedImageUrl = await getDownloadURL(storageRef);
+            // ย่อรูปให้กว้าง/สูงไม่เกิน 800px ก่อนแปลงเป็น Base64
+            uploadedImageUrl = await resizeAndConvertToBase64(file, 800, 800);
         }
 
-        // 3. บันทึกข้อมูลลง Firestore
         const docRef = await addDoc(collection(db, "incidents"), {
             callerEmail: auth.currentUser.email,
             category: document.getElementById('tk-category').value,
@@ -498,7 +529,7 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
             brokenItem: document.getElementById('tk-item').value,
             subject: document.getElementById('tk-subject').value,
             description: document.getElementById('tk-desc').value,
-            imageUrl: uploadedImageUrl, // เก็บ Link รูปภาพไว้ด้วย
+            imageUrl: uploadedImageUrl, // เก็บข้อมูลรูปภาพแบบ Base64 ลง Firestore
             status: 'New',
             assignedTo: null,
             createdAt: new Date()
@@ -516,7 +547,6 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
     } catch (error) {
         Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' });
     } finally {
-        // 4. ปลดล็อกปุ่ม
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> <span data-i18n="btn_submit">Submit Request</span>';
         if(currentLang === 'th') document.querySelector('#btn-create-submit span').innerText = 'ส่งเรื่องแจ้งซ่อม';
@@ -626,7 +656,6 @@ window.setAdminFilter = (f) => {
     }
 };
 
-// 🔴 อัปเดตการแสดงรูปภาพใน Modal Detail
 window.openModal = (id) => {
     currentTicketId = id;
     const t = window.globalTickets[id];
@@ -643,7 +672,6 @@ window.openModal = (id) => {
     document.getElementById('modal-broken-item').innerText = t.brokenItem || 'Not specified';
     document.getElementById('modal-desc').innerText = t.description;
 
-    // เช็คว่ามีรููปภาพไหม ถ้ามีให้แสดงออกมา
     const imgContainer = document.getElementById('modal-image-container');
     const imgTag = document.getElementById('modal-image');
     const imgLink = document.getElementById('modal-image-link');
@@ -685,7 +713,6 @@ window.openModal = (id) => {
                 const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
                 const senderName = isMe ? (currentLang === 'th'?'คุณ':'You') : d.senderEmail.split('@')[0];
                 
-                // ถ้ารูปในแชทมี
                 let chatImgHtml = d.imageUrl ? `<a href="${d.imageUrl}" target="_blank"><img src="${d.imageUrl}" class="mt-2 rounded-lg max-h-40 cursor-pointer border border-white/20 hover:opacity-90"></a>` : '';
                 
                 html += `<div class="flex flex-col ${align}"><div class="${style} chat-bubble"><div class="chat-sender-name">${senderName} • ${timeStr}</div>${d.text}${chatImgHtml}</div></div>`;
@@ -706,14 +733,14 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
-// 🔴 อัปเดตการส่งแชทให้รองรับการอัปโหลดรูป
+// 🔴 อัปเดตตอนส่งคอมเมนต์ในแชท (ใช้ Base64 ไม่พึ่ง Storage)
 document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
     const textInput = document.getElementById('comment-text');
     const imgInput = document.getElementById('comment-image');
     const text = textInput.value.trim();
     
-    if(!text && imgInput.files.length === 0) return; // ถ้าไม่พิมพ์อะไรเลยและไม่ส่งรูป ไม่ให้ไปต่อ
+    if(!text && imgInput.files.length === 0) return; 
 
     const btnSubmit = document.getElementById('btn-comment-submit');
     btnSubmit.disabled = true;
@@ -723,15 +750,14 @@ document.getElementById('comment-form').onsubmit = async (e) => {
         let uploadedImageUrl = null;
         if (imgInput.files.length > 0) {
             const file = imgInput.files[0];
-            const storageRef = ref(storage, `chat/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef, file);
-            uploadedImageUrl = await getDownloadURL(storageRef);
+            // ย่อรูปก่อนเก็บเข้า ฐานข้อมูล
+            uploadedImageUrl = await resizeAndConvertToBase64(file, 800, 800);
         }
 
         await addDoc(collection(db, "incidents", currentTicketId, "comments"), {
             senderEmail: auth.currentUser.email, 
             text: text, 
-            imageUrl: uploadedImageUrl,
+            imageUrl: uploadedImageUrl, // เก็บ Base64 ไว้
             createdAt: new Date()
         });
 

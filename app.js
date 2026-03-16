@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ ใส่ Config Firebase ของคุณตรงนี้
 const firebaseConfig = {
     apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
     authDomain: "servicenow-2b0cd.firebaseapp.com",
@@ -17,22 +16,24 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
-
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// --- ฟังก์ชันใหม่: ย่อขนาดรูปและแปลงเป็นตัวหนังสือ (Base64) เพื่อแก้ปัญหา CORS ---
+// --- ฟังก์ชันย่อขนาดรูปและแปลงเป็น Base64 (ป้องกันค้าง) ---
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
+        if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
+            reject(new Error("กรุณาอัปโหลดไฟล์รูปภาพ (JPG, PNG) เท่านั้นครับ"));
+            return;
+        }
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
             const img = new Image();
-            img.src = event.target.result;
             img.onload = () => {
                 let width = img.width;
                 let height = img.height;
 
-                // คำนวณอัตราส่วนเพื่อย่อขนาดรูป
                 if (width > maxWidth) {
                     height = Math.round((height * maxWidth) / width);
                     width = maxWidth;
@@ -42,19 +43,19 @@ function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
                     height = maxHeight;
                 }
 
-                // วาดรูปลง Canvas เพื่อบีบอัด
                 const canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // แปลงเป็นไฟล์ JPEG และลดคุณภาพลงเหลือ 70% เพื่อประหยัดพื้นที่
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                 resolve(dataUrl);
             };
+            img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพนี้ได้"));
+            img.src = event.target.result;
         };
-        reader.onerror = (error) => reject(error);
+        reader.onerror = () => reject(new Error("อ่านไฟล์ล้มเหลว"));
     });
 }
 
@@ -304,6 +305,7 @@ window.updatePriorityDesc = () => {
     document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
 };
 
+// สลับ Tab แบบไม่พึ่ง currentTarget (ป้องกัน Error)
 window.switchTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
@@ -441,7 +443,6 @@ function loadDashboardData() {
             let statusHtml = `<span class="${bgColors[t.status]} px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-widest flex w-fit gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full ${t.status==='New'?'bg-blue-500':(t.status==='In Progress'?'bg-amber-500':'bg-emerald-500')}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
 
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
-
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
             if (t.callerEmail === auth.currentUser.email) {
@@ -500,7 +501,7 @@ function loadDashboardData() {
     });
 }
 
-// 🔴 อัปเดตตอนสร้างตั๋ว (ใช้ Base64 ไม่พึ่ง Storage)
+// 🔴 อัปเดตตอนสร้างตั๋ว (ดัก Error เรียบร้อย ไม่หมุนค้าง)
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
     
@@ -514,7 +515,6 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         const fileInput = document.getElementById('tk-image');
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            // ย่อรูปให้กว้าง/สูงไม่เกิน 800px ก่อนแปลงเป็น Base64
             uploadedImageUrl = await resizeAndConvertToBase64(file, 800, 800);
         }
 
@@ -529,7 +529,7 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
             brokenItem: document.getElementById('tk-item').value,
             subject: document.getElementById('tk-subject').value,
             description: document.getElementById('tk-desc').value,
-            imageUrl: uploadedImageUrl, // เก็บข้อมูลรูปภาพแบบ Base64 ลง Firestore
+            imageUrl: uploadedImageUrl,
             status: 'New',
             assignedTo: null,
             createdAt: new Date()
@@ -545,7 +545,8 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         switchTab('incidents');
         
     } catch (error) {
-        Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' });
+        console.error(error);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message, confirmButtonColor: '#e11d48' });
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> <span data-i18n="btn_submit">Submit Request</span>';
@@ -733,7 +734,6 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
-// 🔴 อัปเดตตอนส่งคอมเมนต์ในแชท (ใช้ Base64 ไม่พึ่ง Storage)
 document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
     const textInput = document.getElementById('comment-text');
@@ -750,21 +750,20 @@ document.getElementById('comment-form').onsubmit = async (e) => {
         let uploadedImageUrl = null;
         if (imgInput.files.length > 0) {
             const file = imgInput.files[0];
-            // ย่อรูปก่อนเก็บเข้า ฐานข้อมูล
             uploadedImageUrl = await resizeAndConvertToBase64(file, 800, 800);
         }
 
         await addDoc(collection(db, "incidents", currentTicketId, "comments"), {
             senderEmail: auth.currentUser.email, 
             text: text, 
-            imageUrl: uploadedImageUrl, // เก็บ Base64 ไว้
+            imageUrl: uploadedImageUrl,
             createdAt: new Date()
         });
 
         document.getElementById('comment-form').reset();
         document.getElementById('comment-img-label').classList.replace('text-blue-500', 'text-slate-500');
     } catch (error) {
-        Swal.fire({ icon: 'error', text: error.message });
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
     } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = '<i class="fas fa-paper-plane text-xs -ml-0.5"></i>';

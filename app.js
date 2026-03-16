@@ -661,7 +661,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('user-email').innerText = user.email;
         
         // 🔴 แก้ไขบรรทัดนี้: ใส่อีเมลของคุณลงไปตรงนี้ได้เลยครับ
-        isAdmin = user.email === "ใส่อีเมลของคุณที่นี่@gmail.com" || user.email.includes("admin") || user.email.includes("it@");
+        isAdmin = user.email === "nattezava1996@gmail.com" || user.email.includes("admin") || user.email.includes("it@");
         
         document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
         

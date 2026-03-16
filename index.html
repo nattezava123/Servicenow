@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -244,6 +243,33 @@
                                 <i class="fas fa-info-circle mt-0.5 text-blue-500" id="priority-icon"></i>
                                 <span id="priority-text" class="font-medium leading-relaxed">...</span>
                             </div>
+
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                                <p class="text-xs font-bold text-slate-800 mb-3 border-b border-slate-200 pb-2" data-i18n="form_loc_head"><i class="fas fa-map-marker-alt text-rose-500 mr-1"></i> Location & Equipment Details</p>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_bldg">Building</label>
+                                        <input type="text" id="tk-building" placeholder="Ex. A, B" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_floor">Floor</label>
+                                        <input type="text" id="tk-floor" placeholder="Ex. 1, 2" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_dept">Department</label>
+                                        <input type="text" id="tk-dept" placeholder="Ex. HR, QC" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_line">Line</label>
+                                        <input type="text" id="tk-line" placeholder="Ex. L1, N/A" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_item">Broken Part / Item</label>
+                                    <input type="text" id="tk-item" placeholder="Ex. Monitor, Scanner, Network Switch" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" required>
+                                </div>
+                            </div>
                             
                             <div>
                                 <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_short">Subject</label>
@@ -345,15 +371,24 @@
                     <h4 class="text-2xl font-black text-slate-800 leading-tight mb-2" id="modal-subject">Subject</h4>
                     <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-6 border-b border-slate-100 pb-6"><i class="far fa-clock mr-1"></i> <span id="modal-date"></span></p>
                     
-                    <div class="space-y-5">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1" data-i18n="form_cat">Category</p>
-                            <p class="text-sm font-bold text-slate-700" id="modal-category">Cat</p>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1" data-i18n="form_cat">Category</p>
+                                <p class="text-sm font-bold text-slate-700" id="modal-category">Cat</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1" data-i18n="form_pri">Priority</p>
+                                <p class="text-sm font-bold text-slate-700" id="modal-priority">Pri</p>
+                            </div>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1" data-i18n="form_pri">Priority</p>
-                            <p class="text-sm font-bold text-slate-700" id="modal-priority">Pri</p>
+
+                        <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-100/50">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2" data-i18n="modal_loc">Location & Item</p>
+                            <p class="text-xs font-medium text-slate-600 mb-1" id="modal-location">Bldg: -, Floor: -, Dept: -, Line: -</p>
+                            <p class="text-sm font-bold text-rose-600"><i class="fas fa-wrench mr-2"></i><span id="modal-broken-item">Item</span></p>
                         </div>
+
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 mt-2" data-i18n="form_desc">Description</p>
                             <p class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap" id="modal-desc">Desc</p>

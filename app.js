@@ -18,7 +18,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// 🔴 ฟังก์ชันใหม่: แสดงรูปภาพขนาดใหญ่เด้งกลางหน้าจอ (Lightbox)
+// 🔴 โชว์รูปภาพขนาดใหญ่
 window.viewFullImage = (url) => {
     Swal.fire({
         imageUrl: url,
@@ -29,6 +29,24 @@ window.viewFullImage = (url) => {
         showCloseButton: true,
         customClass: { image: 'rounded-xl max-h-[80vh] object-contain' }
     });
+};
+
+// 🔴 พรีวิวรูปภาพก่อนอัปโหลดตอนสร้างตั๋ว
+window.previewCreateImage = (input) => {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('create-image-preview').src = e.target.result;
+            document.getElementById('create-image-preview-container').classList.remove('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+
+window.clearCreateImage = () => {
+    document.getElementById('tk-image').value = '';
+    document.getElementById('create-image-preview').src = '';
+    document.getElementById('create-image-preview-container').classList.add('hidden');
 };
 
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
@@ -550,6 +568,7 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         });
         
         document.getElementById('create-ticket-form').reset();
+        window.clearCreateImage(); // เคลียร์รูปพรีวิวทิ้ง
         window.updatePriorityDesc();
         Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'สร้างตั๋วสำเร็จ!' : 'Ticket Created!' });
         switchTab('incidents');
@@ -577,15 +596,17 @@ window.deleteTicket = (id) => {
     });
 };
 
+// 🔴 อัปเดตกล่องแก้ไขของ Admin (เพิ่มให้แก้สถานที่ได้)
 window.editTicket = (id) => {
     const t = window.globalTickets[id];
     Swal.fire({
         title: currentLang === 'th' ? 'แก้ไขตั๋ว' : 'Edit Ticket Details',
+        width: '600px',
         html: `
         <div class="space-y-4 text-left mt-4">
             <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Subject</label>
-                <input id="edit-sub" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.subject}">
+                <input id="edit-sub" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.subject || ''}">
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -606,9 +627,23 @@ window.editTicket = (id) => {
                     </select>
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Building</label>
+                    <input id="edit-bldg" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.building || ''}">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Department</label>
+                    <input id="edit-dept" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.department || ''}">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Broken Item</label>
+                    <input id="edit-item" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none" value="${t.brokenItem || ''}">
+                </div>
+            </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Description</label>
-                <textarea id="edit-desc" rows="4" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-blue-500/20 outline-none">${t.description}</textarea>
+                <textarea id="edit-desc" rows="4" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-blue-500/20 outline-none">${t.description || ''}</textarea>
             </div>
         </div>`,
         focusConfirm: false, showCancelButton: true, confirmButtonColor: '#3b82f6', 
@@ -618,6 +653,9 @@ window.editTicket = (id) => {
                 subject: document.getElementById('edit-sub').value,
                 category: document.getElementById('edit-cat').value,
                 priority: document.getElementById('edit-pri').value,
+                building: document.getElementById('edit-bldg').value,
+                department: document.getElementById('edit-dept').value,
+                brokenItem: document.getElementById('edit-item').value,
                 description: document.getElementById('edit-desc').value
             }
         }
@@ -722,7 +760,6 @@ window.openModal = (id) => {
                 const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
                 const senderName = isMe ? (currentLang === 'th'?'คุณ':'You') : d.senderEmail.split('@')[0];
                 
-                // 🔴 อัปเดตให้กดดูรูปภาพในแชทได้ (เด้งกลางจอ)
                 let chatImgHtml = d.imageUrl ? `<img src="${d.imageUrl}" class="mt-2 rounded-lg max-h-40 cursor-pointer border border-white/20 hover:opacity-90" onclick="viewFullImage('${d.imageUrl}')">` : '';
                 
                 html += `<div class="flex flex-col ${align}"><div class="${style} chat-bubble"><div class="chat-sender-name">${senderName} • ${timeStr}</div>${d.text}${chatImgHtml}</div></div>`;

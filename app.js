@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+// 🔴 นำเข้า Storage สำหรับอัปโหลดรูปภาพ
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
@@ -11,9 +13,11 @@ const firebaseConfig = {
     appId: "1:1050981111123:web:e6adfe818b041d26fbbda6",
     measurementId: "G-YJQS2G1S64"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); // เรียกใช้ Storage
 const googleProvider = new GoogleAuthProvider();
 
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
@@ -264,7 +268,6 @@ window.updatePriorityDesc = () => {
     document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
 };
 
-// 🔴 แก้ไขแล้ว: ป้องกัน Error Cannot read properties of undefined (reading 'currentTarget')
 window.switchTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
@@ -274,7 +277,6 @@ window.switchTab = (tabName) => {
         if(targetTab) targetTab.classList.add('active'); 
     }, 10);
     
-    // ค้นหาและไฮไลท์เมนูซ้ายมือให้ตรงกัน โดยไม่ต้องพึ่ง event.currentTarget
     const activeLink = document.querySelector(`.menu-link[onclick*="'${tabName}'"]`);
     if(activeLink) activeLink.classList.add('active');
 
@@ -404,10 +406,13 @@ function loadDashboardData() {
 
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
 
+            // แสดงไอคอนรูปภาพในตาราง ถ้าตั๋วนั้นมีรูปแนบมาด้วย
+            let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
+
             if (t.callerEmail === auth.currentUser.email) {
-                userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50">
+                userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" onclick="openModal('${id}')">
                     <td class="py-4 px-6 font-bold text-slate-500 text-xs">${displayId}</td>
-                    <td class="py-4 px-6"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}</div></td>
+                    <td class="py-4 px-6"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div></td>
                     <td class="py-4 px-6">${statusHtml}</td>
                     <td class="py-4 px-6 text-right text-xs text-slate-500">${timeAgo(t.createdAt?.toDate())}</td>
                 </tr>`;
@@ -416,7 +421,7 @@ function loadDashboardData() {
             if (isAdmin) {
                 adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50" data-status="${t.status}">
                     <td class="py-4 px-4 font-bold text-slate-500 cursor-pointer text-xs" onclick="openModal('${id}')">${displayId}</td>
-                    <td class="py-4 px-4 cursor-pointer" onclick="openModal('${id}')"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
+                    <td class="py-4 px-4 cursor-pointer" onclick="openModal('${id}')"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
                     <td class="py-4 px-4 text-xs font-bold text-slate-600">${t.assignedTo ? t.assignedTo.split('@')[0].toUpperCase() : '-'}</td>
                     <td class="py-4 px-4">${statusHtml}</td>
                     <td class="py-4 px-4 text-right opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
@@ -460,10 +465,28 @@ function loadDashboardData() {
     });
 }
 
-// 🔴 อัปเดตการส่งข้อมูล (บันทึกข้อมูลตึก ชั้น ไลน์ ฯลฯ ลงฐานข้อมูล)
+// 🔴 อัปเดตการสร้างตั๋ว ป้องกันคลิกเบิ้ล + อัปโหลดรูป 
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
+    
+    // 1. ล็อกปุ่มป้องกันคลิกเบิ้ล
+    const submitBtn = document.getElementById('btn-create-submit');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+
     try {
+        let uploadedImageUrl = null;
+        
+        // 2. เช็คว่ามีการแนบรูปไหม ถ้ามีให้อัปโหลดเข้า Firebase Storage ก่อน
+        const fileInput = document.getElementById('tk-image');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const storageRef = ref(storage, `tickets/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            uploadedImageUrl = await getDownloadURL(storageRef);
+        }
+
+        // 3. บันทึกข้อมูลลง Firestore
         const docRef = await addDoc(collection(db, "incidents"), {
             callerEmail: auth.currentUser.email,
             category: document.getElementById('tk-category').value,
@@ -475,6 +498,7 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
             brokenItem: document.getElementById('tk-item').value,
             subject: document.getElementById('tk-subject').value,
             description: document.getElementById('tk-desc').value,
+            imageUrl: uploadedImageUrl, // เก็บ Link รูปภาพไว้ด้วย
             status: 'New',
             assignedTo: null,
             createdAt: new Date()
@@ -487,9 +511,15 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         document.getElementById('create-ticket-form').reset();
         window.updatePriorityDesc();
         Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'สร้างตั๋วสำเร็จ!' : 'Ticket Created!' });
-        switchTab('incidents'); // ตอนนี้ไม่ Error แล้วครับ
+        switchTab('incidents');
+        
     } catch (error) {
         Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' });
+    } finally {
+        // 4. ปลดล็อกปุ่ม
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> <span data-i18n="btn_submit">Submit Request</span>';
+        if(currentLang === 'th') document.querySelector('#btn-create-submit span').innerText = 'ส่งเรื่องแจ้งซ่อม';
     }
 };
 
@@ -596,7 +626,7 @@ window.setAdminFilter = (f) => {
     }
 };
 
-// 🔴 อัปเดตการแสดงผลใน Modal ดึงข้อมูลสถานที่และอุปกรณ์มาโชว์
+// 🔴 อัปเดตการแสดงรูปภาพใน Modal Detail
 window.openModal = (id) => {
     currentTicketId = id;
     const t = window.globalTickets[id];
@@ -605,16 +635,26 @@ window.openModal = (id) => {
     document.getElementById('modal-category').innerText = t.category;
     document.getElementById('modal-priority').innerText = t.priority;
     
-    // แสดงผลข้อมูลใหม่ ถ้าอันไหนไม่มีจะแสดงเป็นขีด '-'
     let bldg = t.building || '-';
     let fl = t.floor || '-';
     let dept = t.department || '-';
     let line = t.line || '-';
-    
     document.getElementById('modal-location').innerText = `Bldg: ${bldg}, Floor: ${fl}, Dept: ${dept}, Line: ${line}`;
     document.getElementById('modal-broken-item').innerText = t.brokenItem || 'Not specified';
-
     document.getElementById('modal-desc').innerText = t.description;
+
+    // เช็คว่ามีรููปภาพไหม ถ้ามีให้แสดงออกมา
+    const imgContainer = document.getElementById('modal-image-container');
+    const imgTag = document.getElementById('modal-image');
+    const imgLink = document.getElementById('modal-image-link');
+    if(t.imageUrl) {
+        imgTag.src = t.imageUrl;
+        imgLink.href = t.imageUrl;
+        imgContainer.classList.remove('hidden');
+    } else {
+        imgContainer.classList.add('hidden');
+    }
+
     document.getElementById('modal-caller').innerText = t.callerEmail;
     document.getElementById('modal-assignee').innerText = t.assignedTo || 'Unassigned';
     document.getElementById('modal-date').innerText = t.createdAt ? t.createdAt.toDate().toLocaleString() : '';
@@ -624,7 +664,6 @@ window.openModal = (id) => {
     const bgColors = { 'New': 'bg-blue-100 text-blue-700', 'In Progress': 'bg-amber-100 text-amber-700', 'Resolved': 'bg-emerald-100 text-emerald-700' };
     let statusKey = 'status_' + t.status.toLowerCase().replace(' ', '_');
     let displayStatus = dict[currentLang][statusKey] || t.status;
-    
     document.getElementById('modal-status-badge').innerHTML = `<span class="${bgColors[t.status]} px-4 py-1.5 rounded-lg text-xs uppercase font-black tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full ${t.status==='New'?'bg-blue-500':(t.status==='In Progress'?'bg-amber-500':'bg-emerald-500')}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
 
     const modal = document.getElementById('ticket-modal');
@@ -645,7 +684,11 @@ window.openModal = (id) => {
                 const align = isMe ? 'items-end' : 'items-start';
                 const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
                 const senderName = isMe ? (currentLang === 'th'?'คุณ':'You') : d.senderEmail.split('@')[0];
-                html += `<div class="flex flex-col ${align}"><div class="${style} chat-bubble"><div class="chat-sender-name">${senderName} • ${timeStr}</div>${d.text}</div></div>`;
+                
+                // ถ้ารูปในแชทมี
+                let chatImgHtml = d.imageUrl ? `<a href="${d.imageUrl}" target="_blank"><img src="${d.imageUrl}" class="mt-2 rounded-lg max-h-40 cursor-pointer border border-white/20 hover:opacity-90"></a>` : '';
+                
+                html += `<div class="flex flex-col ${align}"><div class="${style} chat-bubble"><div class="chat-sender-name">${senderName} • ${timeStr}</div>${d.text}${chatImgHtml}</div></div>`;
             }
         });
         document.getElementById('chat-messages').innerHTML = html;
@@ -663,13 +706,43 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
-document.getElementById('comment-form').onsubmit = (e) => {
+// 🔴 อัปเดตการส่งแชทให้รองรับการอัปโหลดรูป
+document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
-    const text = document.getElementById('comment-text').value;
-    addDoc(collection(db, "incidents", currentTicketId, "comments"), {
-        senderEmail: auth.currentUser.email, text: text, createdAt: new Date()
-    });
-    document.getElementById('comment-form').reset();
+    const textInput = document.getElementById('comment-text');
+    const imgInput = document.getElementById('comment-image');
+    const text = textInput.value.trim();
+    
+    if(!text && imgInput.files.length === 0) return; // ถ้าไม่พิมพ์อะไรเลยและไม่ส่งรูป ไม่ให้ไปต่อ
+
+    const btnSubmit = document.getElementById('btn-comment-submit');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
+
+    try {
+        let uploadedImageUrl = null;
+        if (imgInput.files.length > 0) {
+            const file = imgInput.files[0];
+            const storageRef = ref(storage, `chat/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            uploadedImageUrl = await getDownloadURL(storageRef);
+        }
+
+        await addDoc(collection(db, "incidents", currentTicketId, "comments"), {
+            senderEmail: auth.currentUser.email, 
+            text: text, 
+            imageUrl: uploadedImageUrl,
+            createdAt: new Date()
+        });
+
+        document.getElementById('comment-form').reset();
+        document.getElementById('comment-img-label').classList.replace('text-blue-500', 'text-slate-500');
+    } catch (error) {
+        Swal.fire({ icon: 'error', text: error.message });
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fas fa-paper-plane text-xs -ml-0.5"></i>';
+    }
 };
 
 onAuthStateChanged(auth, (user) => {

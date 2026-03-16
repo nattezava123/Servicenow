@@ -18,6 +18,19 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
+// 🔴 ฟังก์ชันใหม่: แสดงรูปภาพขนาดใหญ่เด้งกลางหน้าจอ (Lightbox)
+window.viewFullImage = (url) => {
+    Swal.fire({
+        imageUrl: url,
+        imageAlt: 'Attached Image',
+        width: 'auto',
+        padding: '1rem',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { image: 'rounded-xl max-h-[80vh] object-contain' }
+    });
+};
+
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
@@ -443,7 +456,6 @@ function loadDashboardData() {
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
-            // User Table (Clickable row)
             if (t.callerEmail === auth.currentUser.email) {
                 userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" onclick="openModal('${id}')">
                     <td class="py-4 px-6 font-bold text-slate-500 text-xs">${displayId}</td>
@@ -453,7 +465,6 @@ function loadDashboardData() {
                 </tr>`;
             }
 
-            // Admin Table (Clickable row)
             if (isAdmin) {
                 adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" data-status="${t.status}" onclick="openModal('${id}')">
                     <td class="py-4 px-4 font-bold text-slate-500 text-xs">${displayId}</td>
@@ -674,10 +685,8 @@ window.openModal = (id) => {
 
     const imgContainer = document.getElementById('modal-image-container');
     const imgTag = document.getElementById('modal-image');
-    const imgLink = document.getElementById('modal-image-link');
     if(t.imageUrl) {
         imgTag.src = t.imageUrl;
-        imgLink.href = t.imageUrl;
         imgContainer.classList.remove('hidden');
     } else {
         imgContainer.classList.add('hidden');
@@ -713,7 +722,8 @@ window.openModal = (id) => {
                 const style = isMe ? 'chat-bubble-me' : 'chat-bubble-other';
                 const senderName = isMe ? (currentLang === 'th'?'คุณ':'You') : d.senderEmail.split('@')[0];
                 
-                let chatImgHtml = d.imageUrl ? `<a href="${d.imageUrl}" target="_blank"><img src="${d.imageUrl}" class="mt-2 rounded-lg max-h-40 cursor-pointer border border-white/20 hover:opacity-90"></a>` : '';
+                // 🔴 อัปเดตให้กดดูรูปภาพในแชทได้ (เด้งกลางจอ)
+                let chatImgHtml = d.imageUrl ? `<img src="${d.imageUrl}" class="mt-2 rounded-lg max-h-40 cursor-pointer border border-white/20 hover:opacity-90" onclick="viewFullImage('${d.imageUrl}')">` : '';
                 
                 html += `<div class="flex flex-col ${align}"><div class="${style} chat-bubble"><div class="chat-sender-name">${senderName} • ${timeStr}</div>${d.text}${chatImgHtml}</div></div>`;
             }
@@ -733,7 +743,6 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
-// ดักจับการกด Ctrl+V ในช่องแชท
 document.getElementById('comment-text').addEventListener('paste', function(e) {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -751,7 +760,6 @@ document.getElementById('comment-text').addEventListener('paste', function(e) {
     }
 });
 
-// ส่งคอมเมนต์ในแชท
 document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
     const textInput = document.getElementById('comment-text');

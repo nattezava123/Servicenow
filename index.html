@@ -251,15 +251,14 @@
                                         <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_bldg">Building</label>
                                         <select id="tk-building" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm bg-white" required>
                                             <option value="" disabled selected>Select...</option>
-                                            <option value="Building A (Main)">Building A (Main)</option>
-                                            <option value="Building B (Assembly)">Building B (Assembly)</option>
-                                            <option value="Building C (Packing)">Building C (Packing)</option>
+                                            <option value="Building A">Building A</option>
+                                            <option value="Building B">Building B</option>
+                                            <option value="Building C">Building C</option>
                                             <option value="Warehouse 1">Warehouse 1</option>
                                             <option value="Warehouse 2">Warehouse 2</option>
                                             <option value="Office HQ">Office HQ</option>
                                             <option value="Canteen">Canteen</option>
                                             <option value="Maintenance">Maintenance</option>
-                                            <option value="R&D Center">R&D Center</option>
                                             <option value="Other">Other</option>
                                         </select>
                                     </div>
@@ -273,10 +272,7 @@
                                             <option value="Floor 4">Floor 4</option>
                                             <option value="Floor 5">Floor 5</option>
                                             <option value="Floor 6">Floor 6</option>
-                                            <option value="Floor 7">Floor 7</option>
-                                            <option value="Floor 8">Floor 8</option>
-                                            <option value="Floor 9">Floor 9</option>
-                                            <option value="Floor 10">Floor 10</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
                                     <div>
@@ -284,14 +280,12 @@
                                         <select id="tk-dept" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm bg-white" required>
                                             <option value="" disabled selected>Select...</option>
                                             <option value="Production">Production</option>
-                                            <option value="Quality Control (QC)">Quality Control (QC)</option>
-                                            <option value="Logistics/Warehouse">Logistics/Warehouse</option>
+                                            <option value="Quality Control">QC</option>
+                                            <option value="Warehouse">Warehouse</option>
                                             <option value="Maintenance">Maintenance</option>
-                                            <option value="Human Resources">Human Resources (HR)</option>
-                                            <option value="IT Support">IT Support</option>
-                                            <option value="Accounting/Finance">Accounting/Finance</option>
-                                            <option value="Sales/Marketing">Sales/Marketing</option>
-                                            <option value="Management">Management</option>
+                                            <option value="HR">HR</option>
+                                            <option value="IT">IT</option>
+                                            <option value="Accounting">Accounting</option>
                                             <option value="Other">Other</option>
                                         </select>
                                     </div>
@@ -299,23 +293,20 @@
                                         <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_line">Line</label>
                                         <select id="tk-line" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm bg-white" required>
                                             <option value="" disabled selected>Select...</option>
-                                            <option value="N/A (Not in Production)">N/A (Not in Production)</option>
+                                            <option value="N/A">N/A</option>
                                             <option value="Line 1">Line 1</option>
                                             <option value="Line 2">Line 2</option>
                                             <option value="Line 3">Line 3</option>
                                             <option value="Line 4">Line 4</option>
                                             <option value="Line 5">Line 5</option>
                                             <option value="Line 6">Line 6</option>
-                                            <option value="Line 7">Line 7</option>
-                                            <option value="Line 8">Line 8</option>
-                                            <option value="Line 9">Line 9</option>
-                                            <option value="Line 10">Line 10</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block font-extrabold mb-1.5 text-[10px] uppercase tracking-widest text-slate-500" data-i18n="form_item">Broken Part / Item</label>
-                                    <input type="text" id="tk-item" placeholder="Ex. Monitor, Scanner, Network Switch..." class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white" required>
+                                    <input type="text" id="tk-item" placeholder="Ex. Monitor, Scanner, Printer..." class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white" required>
                                 </div>
                             </div>
                             
@@ -330,7 +321,7 @@
 
                             <div>
                                 <label class="block font-extrabold mb-2 text-[10px] uppercase tracking-widest text-slate-500">Attach Image (Optional)</label>
-                                <input type="file" id="tk-image" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition border border-slate-200 rounded-xl px-2 py-2">
+                                <input type="file" id="tk-image" accept="image/*" capture="environment" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition border border-slate-200 rounded-xl px-2 py-2">
                             </div>
 
                             <button type="submit" id="btn-create-submit" class="bg-slate-900 text-white font-bold py-4 rounded-xl w-full shadow-lg hover:shadow-slate-500/20 transition transform hover:-translate-y-1 mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
@@ -472,7 +463,7 @@
                         <form id="comment-form" class="relative flex gap-2">
                             <label class="w-12 shrink-0 flex items-center justify-center bg-slate-100 text-slate-500 rounded-xl cursor-pointer hover:bg-slate-200 transition border border-slate-200" id="comment-img-label">
                                 <i class="fas fa-image"></i>
-                                <input type="file" id="comment-image" accept="image/*" class="hidden" onchange="document.getElementById('comment-img-label').classList.replace('text-slate-500', 'text-blue-500')">
+                                <input type="file" id="comment-image" accept="image/*" capture="environment" class="hidden" onchange="document.getElementById('comment-img-label').classList.replace('text-slate-500', 'text-blue-500')">
                             </label>
                             
                             <div class="relative flex-1">

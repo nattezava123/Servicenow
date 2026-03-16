@@ -18,7 +18,6 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// --- ฟังก์ชันย่อขนาดรูปและแปลงเป็น Base64 (ดัก Error ป้องกันเว็บค้าง) ---
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
@@ -49,7 +48,7 @@ function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // บีบอัด 70%
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                 resolve(dataUrl);
             };
             img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพนี้ได้ (ไฟล์อาจเสีย)"));
@@ -305,7 +304,6 @@ window.updatePriorityDesc = () => {
     document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
 };
 
-// สลับ Tab แบบปลอดภัย (กัน Error currentTarget)
 window.switchTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
@@ -445,6 +443,7 @@ function loadDashboardData() {
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
+            // User Table (Clickable row)
             if (t.callerEmail === auth.currentUser.email) {
                 userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" onclick="openModal('${id}')">
                     <td class="py-4 px-6 font-bold text-slate-500 text-xs">${displayId}</td>
@@ -454,10 +453,11 @@ function loadDashboardData() {
                 </tr>`;
             }
 
+            // Admin Table (Clickable row)
             if (isAdmin) {
-                adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50" data-status="${t.status}">
-                    <td class="py-4 px-4 font-bold text-slate-500 cursor-pointer text-xs" onclick="openModal('${id}')">${displayId}</td>
-                    <td class="py-4 px-4 cursor-pointer" onclick="openModal('${id}')"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
+                adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" data-status="${t.status}" onclick="openModal('${id}')">
+                    <td class="py-4 px-4 font-bold text-slate-500 text-xs">${displayId}</td>
+                    <td class="py-4 px-4"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
                     <td class="py-4 px-4 text-xs font-bold text-slate-600">${t.assignedTo ? t.assignedTo.split('@')[0].toUpperCase() : '-'}</td>
                     <td class="py-4 px-4">${statusHtml}</td>
                     <td class="py-4 px-4 text-right opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
@@ -501,7 +501,6 @@ function loadDashboardData() {
     });
 }
 
-// 🔴 อัปเดตตอนสร้างตั๋ว (ป้องกันรัวคลิก)
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
     
@@ -734,7 +733,7 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
-// 🔴 ระบบกดวางรูปภาพในแชท (Ctrl+V Paste)
+// ดักจับการกด Ctrl+V ในช่องแชท
 document.getElementById('comment-text').addEventListener('paste', function(e) {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -752,7 +751,7 @@ document.getElementById('comment-text').addEventListener('paste', function(e) {
     }
 });
 
-// 🔴 อัปเดตตอนส่งคอมเมนต์ในแชท (ดัก Error)
+// ส่งคอมเมนต์ในแชท
 document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
     const textInput = document.getElementById('comment-text');

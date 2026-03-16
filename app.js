@@ -391,7 +391,7 @@ window.sendAIMessage = async () => {
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
     try {
-        const API_KEY = "AIzaSyCJ0FBvUhhQslBweUTp1J-AdjlwUIbFSb4"; 
+        const API_KEY = "AIzaSyCrtstH6uTe29m-AfyNUOyGJqeaKgZBMIw"; 
         const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
         
         const prompt = `คุณคือ Serviceman ผู้ช่วยส่วนตัวอัจฉริยะ และพนักงานฝ่าย IT ประจำโรงงาน ข้อมูลตั๋วแจ้งซ่อมในระบบปัจจุบัน (JSON): ${currentData}\nกฎการตอบ: 1. ถ้าผู้ใช้ถามเรื่องงาน IT ให้อ่านและวิเคราะห์จากข้อมูล JSON ด้านบน 2. ถ้าผู้ใช้ถามเรื่องทั่วไป ให้ตอบแบบรอบรู้เหมือน AI ทั่วไป โดยใช้ความรู้ที่คุณมี 3. ใช้ภาษาไทย สุภาพ เป็นธรรมชาติ จัดรูปแบบให้อ่านง่าย (ใช้ HTML tags เช่น <br>, <strong> ห้ามใช้ Markdown ** เด็ดขาด)\nคำถามจากผู้ใช้: "${text}"`;

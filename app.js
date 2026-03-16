@@ -18,7 +18,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// 🔴 โชว์รูปภาพขนาดใหญ่
+// --- ฟังก์ชันขยายรูปภาพ (Lightbox) ---
 window.viewFullImage = (url) => {
     Swal.fire({
         imageUrl: url,
@@ -31,7 +31,7 @@ window.viewFullImage = (url) => {
     });
 };
 
-// 🔴 พรีวิวรูปภาพก่อนอัปโหลดตอนสร้างตั๋ว
+// --- ฟังก์ชันพรีวิวรูปภาพก่อนอัปโหลด ---
 window.previewCreateImage = (input) => {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -49,6 +49,7 @@ window.clearCreateImage = () => {
     document.getElementById('create-image-preview-container').classList.add('hidden');
 };
 
+// --- ฟังก์ชันย่อรูปภาพเป็น Base64 ป้องกันเว็บค้าง ---
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
@@ -376,22 +377,26 @@ window.closeAIModal = () => {
     setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
 };
 
+// 🔴 อัปเดต AI Chat ด้วย Key ตัวใหม่ + ใช้ insertAdjacentHTML
 window.sendAIMessage = async () => {
     const input = document.getElementById('ai-input');
     const text = input.value.trim();
     if (!text) return;
     
     const consoleBox = document.getElementById('ai-chat-box');
-    consoleBox.innerHTML += `<div class="flex items-start gap-4 mb-6 flex-row-reverse chat-user-bubble"><div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0 shadow-sm"><i class="fas fa-user text-[10px]"></i></div><div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-md text-sm leading-relaxed max-w-[85%]">${text}</div></div>`;
+    
+    consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 flex-row-reverse chat-user-bubble"><div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0 shadow-sm"><i class="fas fa-user text-[10px]"></i></div><div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-md text-sm leading-relaxed max-w-[85%]">${text}</div></div>`);
     input.value = '';
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
-    const thinkingId = 'think-' + Date.now();
-    consoleBox.innerHTML += `<div id="${thinkingId}" class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-400 flex gap-1"><span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay: 0.2s">●</span><span class="animate-bounce" style="animation-delay: 0.4s">●</span></div></div>`;
+    const thinkingId = 'think-' + Date.now() + Math.floor(Math.random() * 1000);
+    consoleBox.insertAdjacentHTML('beforeend', `<div id="${thinkingId}" class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-400 flex gap-1"><span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay: 0.2s">●</span><span class="animate-bounce" style="animation-delay: 0.4s">●</span></div></div>`);
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
     try {
-        const API_KEY = "AIzaSyCJ0FBvUhhQslBweUTp1J-AdjlwUIbFSb4"; 
+        // 🔴 ใช้ API KEY ใหม่ของคุณ
+        const API_KEY = "AIzaSyDQGmgfRVReFCwbLLHyJhB-_gRBdCe90rA"; 
+        
         const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
         
         const prompt = `คุณคือ Serviceman ผู้ช่วยส่วนตัวอัจฉริยะ และพนักงานฝ่าย IT ประจำโรงงาน ข้อมูลตั๋วแจ้งซ่อมในระบบปัจจุบัน (JSON): ${currentData}\nกฎการตอบ: 1. ถ้าผู้ใช้ถามเรื่องงาน IT ให้อ่านและวิเคราะห์จากข้อมูล JSON ด้านบน 2. ถ้าผู้ใช้ถามเรื่องทั่วไป ให้ตอบแบบรอบรู้เหมือน AI ทั่วไป โดยใช้ความรู้ที่คุณมี 3. ใช้ภาษาไทย สุภาพ เป็นธรรมชาติ จัดรูปแบบให้อ่านง่าย (ใช้ HTML tags เช่น <br>, <strong> ห้ามใช้ Markdown ** เด็ดขาด)\nคำถามจากผู้ใช้: "${text}"`;
@@ -401,17 +406,20 @@ window.sendAIMessage = async () => {
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
         const data = await response.json();
-        document.getElementById(thinkingId).remove();
+        
+        document.getElementById(thinkingId)?.remove();
+        
         if (data.error) throw new Error(data.error.message);
         
         let rawText = data.candidates[0].content.parts[0].text;
         let formattedText = rawText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>').replace(/\*(.*?)/g, '<li class="ml-4 mt-1">$1</li>').replace(/\n/g, '<br>');
         
-        consoleBox.innerHTML += `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${formattedText}</div></div>`;
+        consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${formattedText}</div></div>`);
         consoleBox.scrollTop = consoleBox.scrollHeight;
     } catch (error) {
-        document.getElementById(thinkingId).remove();
-        consoleBox.innerHTML += `<div class="flex items-start gap-4 mb-6"><div class="bg-rose-50 text-rose-600 p-4 rounded-2xl rounded-tl-sm text-sm"><i class="fas fa-exclamation-triangle mr-2"></i> Error: ${error.message}</div></div>`;
+        document.getElementById(thinkingId)?.remove();
+        consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6"><div class="bg-rose-50 text-rose-600 p-4 rounded-2xl rounded-tl-sm text-sm"><i class="fas fa-exclamation-triangle mr-2"></i> Error: ${error.message}</div></div>`);
+        consoleBox.scrollTop = consoleBox.scrollHeight;
     }
 };
 
@@ -568,7 +576,7 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         });
         
         document.getElementById('create-ticket-form').reset();
-        window.clearCreateImage(); // เคลียร์รูปพรีวิวทิ้ง
+        window.clearCreateImage(); 
         window.updatePriorityDesc();
         Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'สร้างตั๋วสำเร็จ!' : 'Ticket Created!' });
         switchTab('incidents');
@@ -596,7 +604,6 @@ window.deleteTicket = (id) => {
     });
 };
 
-// 🔴 อัปเดตกล่องแก้ไขของ Admin (เพิ่มให้แก้สถานที่ได้)
 window.editTicket = (id) => {
     const t = window.globalTickets[id];
     Swal.fire({

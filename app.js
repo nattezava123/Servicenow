@@ -654,14 +654,17 @@ document.getElementById('comment-form').onsubmit = (e) => {
 };
 
 // --- Init Auth State ---
+// --- Init Auth State ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('auth-view').classList.remove('active');
         document.getElementById('app-view').classList.add('active');
         document.getElementById('user-email').innerText = user.email;
         
-        // 🔴 เช็คสิทธิ์ Admin ตรงนี้: ถ้าเป็นอีเมลที่กำหนด หรือมีคำว่า admin จะได้สิทธิ์ทันที
-        isAdmin = user.email === "nattezava1996@gmail.com" || user.email.includes("admin");
+        // 🔴 เพิ่ม .toLowerCase() และ .trim() ป้องกันปัญหาตัวพิมพ์ใหญ่และช่องว่าง
+        const safeEmail = user.email ? user.email.toLowerCase().trim() : "";
+        
+        isAdmin = safeEmail === "nattezava1996@gmail.com" || safeEmail.includes("admin");
         
         document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
         

@@ -18,7 +18,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// --- ฟังก์ชันย่อขนาดรูปและแปลงเป็น Base64 (ป้องกันค้าง) ---
+// --- ฟังก์ชันย่อขนาดรูปและแปลงเป็น Base64 (ดัก Error ป้องกันเว็บค้าง) ---
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
@@ -49,10 +49,10 @@ function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // บีบอัด 70%
                 resolve(dataUrl);
             };
-            img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพนี้ได้"));
+            img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพนี้ได้ (ไฟล์อาจเสีย)"));
             img.src = event.target.result;
         };
         reader.onerror = () => reject(new Error("อ่านไฟล์ล้มเหลว"));
@@ -305,7 +305,7 @@ window.updatePriorityDesc = () => {
     document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
 };
 
-// สลับ Tab แบบไม่พึ่ง currentTarget (ป้องกัน Error)
+// สลับ Tab แบบปลอดภัย (กัน Error currentTarget)
 window.switchTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
@@ -501,7 +501,7 @@ function loadDashboardData() {
     });
 }
 
-// 🔴 อัปเดตตอนสร้างตั๋ว (ดัก Error เรียบร้อย ไม่หมุนค้าง)
+// 🔴 อัปเดตตอนสร้างตั๋ว (ป้องกันรัวคลิก)
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
     
@@ -734,6 +734,25 @@ window.closeModal = () => {
     if(chatUnsubscribe) chatUnsubscribe();
 };
 
+// 🔴 ระบบกดวางรูปภาพในแชท (Ctrl+V Paste)
+document.getElementById('comment-text').addEventListener('paste', function(e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.includes('image')) {
+            const blob = item.getAsFile();
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(blob);
+            document.getElementById('comment-image').files = dataTransfer.files;
+            
+            document.getElementById('comment-img-label').classList.replace('text-slate-500', 'text-blue-500');
+            Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'แนบรูปภาพจากหน้าจอแล้ว' : 'Image attached from Clipboard' });
+            e.preventDefault(); 
+        }
+    }
+});
+
+// 🔴 อัปเดตตอนส่งคอมเมนต์ในแชท (ดัก Error)
 document.getElementById('comment-form').onsubmit = async (e) => {
     e.preventDefault();
     const textInput = document.getElementById('comment-text');
@@ -763,6 +782,7 @@ document.getElementById('comment-form').onsubmit = async (e) => {
         document.getElementById('comment-form').reset();
         document.getElementById('comment-img-label').classList.replace('text-blue-500', 'text-slate-500');
     } catch (error) {
+        console.error(error);
         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
     } finally {
         btnSubmit.disabled = false;

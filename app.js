@@ -18,7 +18,6 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// --- ฟังก์ชันขยายรูปภาพ (Lightbox) ---
 window.viewFullImage = (url) => {
     Swal.fire({
         imageUrl: url,
@@ -31,7 +30,6 @@ window.viewFullImage = (url) => {
     });
 };
 
-// --- ฟังก์ชันพรีวิวรูปภาพก่อนอัปโหลด ---
 window.previewCreateImage = (input) => {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -49,7 +47,6 @@ window.clearCreateImage = () => {
     document.getElementById('create-image-preview-container').classList.add('hidden');
 };
 
-// --- ฟังก์ชันย่อรูปภาพเป็น Base64 ป้องกันเว็บค้าง ---
 function resizeAndConvertToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
@@ -377,14 +374,12 @@ window.closeAIModal = () => {
     setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
 };
 
-// 🔴 อัปเดต AI Chat ด้วย Key ตัวใหม่ + ใช้ insertAdjacentHTML
 window.sendAIMessage = async () => {
     const input = document.getElementById('ai-input');
     const text = input.value.trim();
     if (!text) return;
     
     const consoleBox = document.getElementById('ai-chat-box');
-    
     consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 flex-row-reverse chat-user-bubble"><div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0 shadow-sm"><i class="fas fa-user text-[10px]"></i></div><div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-md text-sm leading-relaxed max-w-[85%]">${text}</div></div>`);
     input.value = '';
     consoleBox.scrollTop = consoleBox.scrollHeight;
@@ -394,7 +389,6 @@ window.sendAIMessage = async () => {
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
     try {
-        // 🔴 ใช้ API KEY ใหม่ของคุณ
         const API_KEY = "AIzaSyDQGmgfRVReFCwbLLHyJhB-_gRBdCe90rA"; 
         
         const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
@@ -469,6 +463,10 @@ function loadDashboardData() {
             const displayId = "TKT-" + id.substring(0, 4).toUpperCase();
             window.globalTickets[id] = t;
             
+            // 🔴 ความเป็นส่วนตัว: เช็คสิทธิ์ก่อนดึงมาแสดง
+            const isMyTicket = t.callerEmail === auth.currentUser.email;
+            if (!isAdmin && !isMyTicket) return;
+            
             if(t.status === 'Resolved' && t.assignedTo === auth.currentUser.email) myResolved++;
             
             counts[t.status] = (counts[t.status] || 0) + 1;
@@ -482,7 +480,7 @@ function loadDashboardData() {
             let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
-            if (t.callerEmail === auth.currentUser.email) {
+            if (isMyTicket) {
                 userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" onclick="openModal('${id}')">
                     <td class="py-4 px-6 font-bold text-slate-500 text-xs">${displayId}</td>
                     <td class="py-4 px-6"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div></td>
@@ -715,6 +713,13 @@ window.setAdminFilter = (f) => {
 window.openModal = (id) => {
     currentTicketId = id;
     const t = window.globalTickets[id];
+    
+    // 🔴 ความเป็นส่วนตัว: ป้องกันคนอื่นเจาะเข้ามาดูตั๋วที่ไม่ใช่ของตัวเอง
+    if (!isAdmin && t.callerEmail !== auth.currentUser.email) {
+        Swal.fire({ icon: 'error', title: 'Access Denied', text: 'คุณไม่มีสิทธิ์เข้าถึงตั๋วแจ้งซ่อมของผู้อื่นครับ' });
+        return;
+    }
+
     document.getElementById('modal-id').innerText = "TKT-" + id.substring(0, 4).toUpperCase();
     document.getElementById('modal-subject').innerText = t.subject;
     document.getElementById('modal-category').innerText = t.category;

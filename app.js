@@ -654,21 +654,27 @@ document.getElementById('comment-form').onsubmit = (e) => {
 };
 
 // --- Init Auth State ---
-// --- Init Auth State ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('auth-view').classList.remove('active');
         document.getElementById('app-view').classList.add('active');
         document.getElementById('user-email').innerText = user.email;
         
-        // 🔴 เพิ่ม .toLowerCase() และ .trim() ป้องกันปัญหาตัวพิมพ์ใหญ่และช่องว่าง
+        // เช็คสิทธิ์ Admin
         const safeEmail = user.email ? user.email.toLowerCase().trim() : "";
-        
         isAdmin = safeEmail === "nattezava1996@gmail.com" || safeEmail.includes("admin");
         
-        document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
+        // 🔴 แก้ไขตรงนี้: สั่งเปลี่ยนค่า data-i18n เพื่อไม่ให้ระบบแปลภาษาทับค่าเดิม
+        const roleElement = document.getElementById('user-role');
+        if (isAdmin) {
+            roleElement.setAttribute('data-i18n', 'role_admin');
+            roleElement.classList.replace('text-blue-400', 'text-rose-400'); // เปลี่ยนสีให้ Admin (สีแดงกุหลาบ) จะได้ดูแตกต่าง
+        } else {
+            roleElement.setAttribute('data-i18n', 'role_user');
+            roleElement.classList.replace('text-rose-400', 'text-blue-400'); // สีฟ้าสำหรับ User
+        }
         
-        // เช็คว่าถ้าเป็นแอดมิน ให้แสดงเมนู Admin
+        // แสดง/ซ่อน เมนู Admin
         if(isAdmin) {
             document.getElementById('admin-menu').classList.remove('hidden');
         } else {
@@ -681,5 +687,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('app-view').classList.remove('active');
         document.getElementById('auth-view').classList.add('active');
     }
-    toggleLang(currentLang);
+    
+    // ฟังก์ชันแปลภาษาจะถูกเรียกตรงนี้ และจะดึงคำว่า IT Admin มาแสดงได้ถูกต้องแล้ว
+    toggleLang(currentLang); 
 });

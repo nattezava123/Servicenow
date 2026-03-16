@@ -668,10 +668,12 @@ onAuthStateChanged(auth, (user) => {
         const roleElement = document.getElementById('user-role');
         if (isAdmin) {
             roleElement.setAttribute('data-i18n', 'role_admin');
-            roleElement.classList.replace('text-blue-400', 'text-rose-400'); // เปลี่ยนสีให้ Admin (สีแดงกุหลาบ) จะได้ดูแตกต่าง
+            roleElement.classList.remove('text-blue-400');
+            roleElement.classList.add('text-rose-400'); // เปลี่ยนสีให้ Admin (สีแดงกุหลาบ) จะได้ดูแตกต่าง
         } else {
             roleElement.setAttribute('data-i18n', 'role_user');
-            roleElement.classList.replace('text-rose-400', 'text-blue-400'); // สีฟ้าสำหรับ User
+            roleElement.classList.remove('text-rose-400');
+            roleElement.classList.add('text-blue-400'); // สีฟ้าสำหรับ User
         }
         
         // แสดง/ซ่อน เมนู Admin

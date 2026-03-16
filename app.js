@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ ใส่ Config Firebase ของคุณตรงนี้
 const firebaseConfig = {
     apiKey: "AIzaSyDHMRKJovs43b4CWdJOUbUlO5BEekqCmBI",
     authDomain: "servicenow-2b0cd.firebaseapp.com",
@@ -19,7 +18,6 @@ const googleProvider = new GoogleAuthProvider();
 
 const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-// --- Time Formatter ---
 function timeAgo(date) {
     if(!date) return '-';
     const seconds = Math.floor((new Date() - date) / 1000);
@@ -36,7 +34,6 @@ function timeAgo(date) {
     return "Just now";
 }
 
-// --- 🌐 ระบบภาษาฉบับสมบูรณ์ (Dictionary) ---
 const dict = {
     en: {
         page_title: "Factory IT Service Center",
@@ -76,6 +73,13 @@ const dict = {
         form_pri: "Priority",
         form_short: "Subject",
         form_desc: "Description",
+        form_loc_head: "Location & Equipment Details",
+        form_bldg: "Building",
+        form_floor: "Floor",
+        form_dept: "Department",
+        form_line: "Line",
+        form_item: "Broken Part / Item",
+        modal_loc: "Location & Item",
         btn_export: "Export CSV",
         dash_welcome: "Welcome back,",
         dash_sub: "Here's what's happening with your IT support tickets today.",
@@ -134,7 +138,14 @@ const dict = {
         form_cat: "หมวดหมู่",
         form_pri: "ความเร่งด่วน",
         form_short: "หัวข้อ",
-        form_desc: "รายละเอียด",
+        form_desc: "รายละเอียดเพิ่มเติม",
+        form_loc_head: "ข้อมูลสถานที่และอุปกรณ์",
+        form_bldg: "ตึก/อาคาร",
+        form_floor: "ชั้น",
+        form_dept: "แผนก",
+        form_line: "ไลน์การผลิต",
+        form_item: "อะไร/ชิ้นไหนเสีย",
+        modal_loc: "ข้อมูลสถานที่และอุปกรณ์",
         btn_export: "ดาวน์โหลด CSV",
         dash_welcome: "ยินดีต้อนรับ,",
         dash_sub: "สรุปภาพรวมการแจ้งซ่อมไอทีของคุณในวันนี้",
@@ -166,7 +177,6 @@ window.globalTickets = {};
 let currentTicketId = null;
 let chatUnsubscribe = null;
 
-// --- Core UI Logic ---
 window.toggleMobileMenu = () => {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -176,22 +186,18 @@ window.toggleLang = (lang) => {
     currentLang = lang;
     localStorage.setItem('appLang', lang);
     
-    // 1. Title Page
     document.getElementById('page-title-tag').innerText = dict[lang].page_title;
 
-    // 2. Text Content (data-i18n)
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const k = el.getAttribute('data-i18n');
         if(dict[lang][k]) el.innerText = dict[lang][k];
     });
     
-    // 3. Placeholders
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const k = el.getAttribute('data-i18n-placeholder');
         if(dict[lang][k]) el.placeholder = dict[lang][k];
     });
 
-    // 4. Categories
     const optHw = document.getElementById('opt-hw');
     const optSw = document.getElementById('opt-sw');
     const optNw = document.getElementById('opt-nw');
@@ -199,12 +205,8 @@ window.toggleLang = (lang) => {
     if(optSw) optSw.innerText = dict[lang].cat_sw;
     if(optNw) optNw.innerText = dict[lang].cat_nw;
 
-    // 5. Priority Description Update
-    if(typeof window.updatePriorityDesc === 'function') {
-        window.updatePriorityDesc(); 
-    }
+    if(typeof window.updatePriorityDesc === 'function') window.updatePriorityDesc(); 
 
-    // 6. Buttons EN/TH active state
     ['auth', 'app'].forEach(view => {
         const btnEn = document.getElementById(`lang-en-${view}`);
         const btnTh = document.getElementById(`lang-th-${view}`);
@@ -262,11 +264,20 @@ window.updatePriorityDesc = () => {
     document.getElementById('priority-icon').className = `fas fa-info-circle mt-0.5 ${iconColors[val]}`;
 };
 
+// 🔴 แก้ไขแล้ว: ป้องกัน Error Cannot read properties of undefined (reading 'currentTarget')
 window.switchTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
-    setTimeout(() => { document.getElementById(`tab-${tabName}`).classList.add('active'); }, 10);
-    event.currentTarget?.classList.add('active');
+    
+    setTimeout(() => { 
+        const targetTab = document.getElementById(`tab-${tabName}`);
+        if(targetTab) targetTab.classList.add('active'); 
+    }, 10);
+    
+    // ค้นหาและไฮไลท์เมนูซ้ายมือให้ตรงกัน โดยไม่ต้องพึ่ง event.currentTarget
+    const activeLink = document.querySelector(`.menu-link[onclick*="'${tabName}'"]`);
+    if(activeLink) activeLink.classList.add('active');
+
     document.getElementById('page-title').innerText = dict[currentLang][`menu_${tabName}`] || dict[currentLang].app_name;
     if(window.innerWidth <= 768 && document.getElementById('sidebar').classList.contains('open')) toggleMobileMenu();
 };
@@ -278,7 +289,6 @@ window.toggleAuthMode = () => {
     document.getElementById('auth-switch-btn').innerText = isLoginMode ? dict[currentLang].btn_register : dict[currentLang].btn_signin;
 };
 
-// --- AI Modal Functions ---
 window.openAIModal = () => {
     const modal = document.getElementById('ai-modal');
     const box = document.getElementById('ai-box');
@@ -312,7 +322,6 @@ window.sendAIMessage = async () => {
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
     try {
-        // ⚠️ API Key ของ Gemini
         const API_KEY = "AIzaSyAaY8XgpGstda6Q9bJ22sqvupyy222LKsolV2222TA22222222"; 
         const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
         
@@ -337,7 +346,6 @@ window.sendAIMessage = async () => {
     }
 };
 
-// --- Auth Forms ---
 document.getElementById('auth-form').onsubmit = (e) => {
     e.preventDefault();
     const email = document.getElementById('auth-email').value;
@@ -365,7 +373,6 @@ document.getElementById('btn-logout').onclick = () => {
     });
 };
 
-// --- Core Data Loading ---
 function loadDashboardData() {
     const q = query(collection(db, "incidents"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
@@ -453,7 +460,7 @@ function loadDashboardData() {
     });
 }
 
-// --- Ticket Creation ---
+// 🔴 อัปเดตการส่งข้อมูล (บันทึกข้อมูลตึก ชั้น ไลน์ ฯลฯ ลงฐานข้อมูล)
 document.getElementById('create-ticket-form').onsubmit = async (e) => {
     e.preventDefault();
     try {
@@ -461,6 +468,11 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
             callerEmail: auth.currentUser.email,
             category: document.getElementById('tk-category').value,
             priority: document.getElementById('tk-priority').value,
+            building: document.getElementById('tk-building').value,
+            floor: document.getElementById('tk-floor').value,
+            department: document.getElementById('tk-dept').value,
+            line: document.getElementById('tk-line').value,
+            brokenItem: document.getElementById('tk-item').value,
             subject: document.getElementById('tk-subject').value,
             description: document.getElementById('tk-desc').value,
             status: 'New',
@@ -475,13 +487,12 @@ document.getElementById('create-ticket-form').onsubmit = async (e) => {
         document.getElementById('create-ticket-form').reset();
         window.updatePriorityDesc();
         Toast.fire({ icon: 'success', title: currentLang === 'th' ? 'สร้างตั๋วสำเร็จ!' : 'Ticket Created!' });
-        switchTab('incidents');
+        switchTab('incidents'); // ตอนนี้ไม่ Error แล้วครับ
     } catch (error) {
         Swal.fire({ icon: 'error', text: error.message, confirmButtonColor: '#3b82f6' });
     }
 };
 
-// --- Ticket Updates ---
 window.updateTicket = (id, newStatus) => {
     updateDoc(doc(db, "incidents", id), { status: newStatus, assignedTo: auth.currentUser.email }).then(() => {
         addDoc(collection(db, "incidents", id, "comments"), { senderEmail: "system", text: `Status updated to ${newStatus} by ${auth.currentUser.email.split('@')[0]}`, createdAt: new Date() });
@@ -547,13 +558,12 @@ window.editTicket = (id) => {
     });
 };
 
-// --- CSV Export ---
 window.exportCSV = () => {
-    let csv = "ID,Subject,Status,Priority,Category,Caller,AssignedTo,Date\n";
+    let csv = "ID,Subject,Status,Priority,Category,Building,Floor,Department,Line,BrokenItem,Caller,AssignedTo,Date\n";
     for(let id in window.globalTickets) {
         let t = window.globalTickets[id];
         let dateStr = t.createdAt ? t.createdAt.toDate().toISOString() : "";
-        csv += `${id},"${t.subject}",${t.status},"${t.priority}",${t.category},${t.callerEmail},${t.assignedTo||''},${dateStr}\n`;
+        csv += `${id},"${t.subject}",${t.status},"${t.priority}",${t.category},"${t.building||'-'}","${t.floor||'-'}","${t.department||'-'}","${t.line||'-'}","${t.brokenItem||'-'}",${t.callerEmail},${t.assignedTo||''},${dateStr}\n`;
     }
     const blob = new Blob([csv], { type: 'text/csv' });
     const link = document.createElement('a');
@@ -562,7 +572,6 @@ window.exportCSV = () => {
     link.click();
 };
 
-// --- Filtering ---
 window.filterTickets = (tableId, inputId) => {
     const input = document.getElementById(inputId).value.toUpperCase();
     const trs = document.getElementById(tableId).getElementsByTagName("tr");
@@ -587,7 +596,7 @@ window.setAdminFilter = (f) => {
     }
 };
 
-// --- Ticket Detail Modal (Chat) ---
+// 🔴 อัปเดตการแสดงผลใน Modal ดึงข้อมูลสถานที่และอุปกรณ์มาโชว์
 window.openModal = (id) => {
     currentTicketId = id;
     const t = window.globalTickets[id];
@@ -595,6 +604,16 @@ window.openModal = (id) => {
     document.getElementById('modal-subject').innerText = t.subject;
     document.getElementById('modal-category').innerText = t.category;
     document.getElementById('modal-priority').innerText = t.priority;
+    
+    // แสดงผลข้อมูลใหม่ ถ้าอันไหนไม่มีจะแสดงเป็นขีด '-'
+    let bldg = t.building || '-';
+    let fl = t.floor || '-';
+    let dept = t.department || '-';
+    let line = t.line || '-';
+    
+    document.getElementById('modal-location').innerText = `Bldg: ${bldg}, Floor: ${fl}, Dept: ${dept}, Line: ${line}`;
+    document.getElementById('modal-broken-item').innerText = t.brokenItem || 'Not specified';
+
     document.getElementById('modal-desc').innerText = t.description;
     document.getElementById('modal-caller').innerText = t.callerEmail;
     document.getElementById('modal-assignee').innerText = t.assignedTo || 'Unassigned';
@@ -653,30 +672,26 @@ document.getElementById('comment-form').onsubmit = (e) => {
     document.getElementById('comment-form').reset();
 };
 
-// --- Init Auth State ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('auth-view').classList.remove('active');
         document.getElementById('app-view').classList.add('active');
         document.getElementById('user-email').innerText = user.email;
         
-        // เช็คสิทธิ์ Admin
         const safeEmail = user.email ? user.email.toLowerCase().trim() : "";
         isAdmin = safeEmail === "nattezava1996@gmail.com" || safeEmail.includes("admin");
         
-        // 🔴 แก้ไขตรงนี้: สั่งเปลี่ยนค่า data-i18n เพื่อไม่ให้ระบบแปลภาษาทับค่าเดิม
         const roleElement = document.getElementById('user-role');
         if (isAdmin) {
             roleElement.setAttribute('data-i18n', 'role_admin');
             roleElement.classList.remove('text-blue-400');
-            roleElement.classList.add('text-rose-400'); // เปลี่ยนสีให้ Admin (สีแดงกุหลาบ) จะได้ดูแตกต่าง
+            roleElement.classList.add('text-rose-400'); 
         } else {
             roleElement.setAttribute('data-i18n', 'role_user');
             roleElement.classList.remove('text-rose-400');
-            roleElement.classList.add('text-blue-400'); // สีฟ้าสำหรับ User
+            roleElement.classList.add('text-blue-400'); 
         }
         
-        // แสดง/ซ่อน เมนู Admin
         if(isAdmin) {
             document.getElementById('admin-menu').classList.remove('hidden');
         } else {
@@ -689,7 +704,5 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('app-view').classList.remove('active');
         document.getElementById('auth-view').classList.add('active');
     }
-    
-    // ฟังก์ชันแปลภาษาจะถูกเรียกตรงนี้ และจะดึงคำว่า IT Admin มาแสดงได้ถูกต้องแล้ว
     toggleLang(currentLang); 
 });

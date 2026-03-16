@@ -660,8 +660,8 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('app-view').classList.add('active');
         document.getElementById('user-email').innerText = user.email;
         
-        // 🔴 แก้ไขบรรทัดนี้: ใส่อีเมลของคุณลงไปตรงนี้ได้เลยครับ
-        isAdmin = user.email == "nattezava1996@gmail.com" || user.email.includes("admin") || user.email.includes("it@");
+        // 🔴 เช็คสิทธิ์ Admin ตรงนี้: ถ้าเป็นอีเมลที่กำหนด หรือมีคำว่า admin จะได้สิทธิ์ทันที
+        isAdmin = user.email === "nattezava1996@gmail.com" || user.email.includes("admin");
         
         document.getElementById('user-role').innerText = isAdmin ? dict[currentLang].role_admin : dict[currentLang].role_user;
         

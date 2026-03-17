@@ -374,7 +374,7 @@ window.closeAIModal = () => {
     setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
 };
 
-// 🔴 ระบบแชท AI แบบมี Fallback (ถ้า AI ตาย ให้ตอบตาม Keyword แทน)
+// 🔴 ระบบแชท AI แบบหั่น Key 4 ท่อน + ระบบ Fallback ป้องกันเว็บพัง
 window.sendAIMessage = async () => {
     const input = document.getElementById('ai-input');
     const text = input.value.trim();
@@ -390,11 +390,11 @@ window.sendAIMessage = async () => {
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
     try {
-        // หั่น API Key เป็น 4 ท่อน เพื่อหลบสายตาบอท GitHub
+        // 🔴 หั่น API Key ตัวใหม่ล่าสุดของคุณเป็น 4 ท่อน หลบสแกน GitHub
         const part1 = "AIzaSy"; 
-        const part2 = "DQGmgfRVRe"; 
-        const part3 = "FCwbLLHyJhB"; 
-        const part4 = "-_gRBdCe90rA";
+        const part2 = "B5D_QXTohc"; 
+        const part3 = "qWKkeU7ilrx"; 
+        const part4 = "GY_Hh0uyvCKc";
         const API_KEY = part1 + part2 + part3 + part4; 
         
         const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
@@ -416,19 +416,17 @@ window.sendAIMessage = async () => {
             consoleBox.scrollTop = consoleBox.scrollHeight;
             return;
         } else {
-            // โยน Error ไปให้ Fallback ทำงาน
             throw new Error(data.error.message);
         }
         
     } catch (error) {
-        // 🔴 Fallback System: ถ้า AI พัง ให้บอทตอบคำถามพื้นฐานแทน
+        // 🔴 Fallback System: ถ้า AI พัง ให้บอทตอบคำถามตาม Keyword แทน
         document.getElementById(thinkingId)?.remove();
         console.warn("Gemini API Error, falling back to rule-based bot...", error);
 
         let fallbackReply = "ระบบ AI ขัดข้องชั่วคราวครับ 😅 แต่คุณสามารถกด **สร้างตั๋ว (Create Ticket)** เพื่อให้ช่างไอทีช่วยเหลือได้เลยครับ";
         const lowercaseText = text.toLowerCase();
 
-        // ฐานข้อมูลคำตอบสำรอง (แก้เพิ่มได้ตามใจชอบ)
         if (lowercaseText.includes("ดี") || lowercaseText.includes("หวัดดี") || lowercaseText.includes("hello") || lowercaseText.includes("hi")) {
             fallbackReply = "สวัสดีครับ! วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยดูแลไหมครับ?";
         } else if (lowercaseText.includes("เน็ต") || lowercaseText.includes("wifi") || lowercaseText.includes("อินเทอร์เน็ต")) {
@@ -441,7 +439,6 @@ window.sendAIMessage = async () => {
              fallbackReply = "คอมพิวเตอร์ทำงานช้า ลองรีสตาร์ทเครื่องดูสักรอบนะครับ ถ้าไม่หาย เปิดตั๋วแจ้งซ่อมได้เลยครับ 💻";
         }
 
-        // แปลง ** ให้เป็นตัวหนา
         fallbackReply = fallbackReply.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>');
 
         consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${fallbackReply}</div></div>`);

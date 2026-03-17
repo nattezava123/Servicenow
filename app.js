@@ -374,76 +374,109 @@ window.closeAIModal = () => {
     setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
 };
 
-// 🔴 ระบบแชท AI แบบหั่น Key 4 ท่อน + ระบบ Fallback ป้องกันเว็บพัง
+// 🤖 ฐานข้อมูลสมองบอท (Rule-based IT Helpdesk) ครอบคลุมกว่า 100+ อาการ
+const botDatabase = [
+    // 1. หมวดทักทาย / มารยาทพื้นฐาน
+    { keywords: ["สวัสดี", "หวัดดี", "ดีครับ", "ดีค่ะ", "hello", "hi", "ทักทาย", "ทำอะไรได้บ้าง", "ช่วยด้วย"], answer: "สวัสดีครับ! ผมคือ **Serviceman** 🤖 ผู้ช่วยไอทีประจำโรงงาน วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยตรวจสอบไหมครับ พิมพ์อาการเสียสั้นๆ มาได้เลยครับ" },
+    { keywords: ["ขอบคุณ", "แต้งกิ้ว", "thank", "thx", "เยี่ยม", "ดีมาก", "ok", "โอเค", "ได้แล้ว", "หายแล้ว"], answer: "ยินดีให้บริการเสมอครับ! 🎉 ถ้ามีปัญหาการใช้งานอื่นๆ แจ้งเข้ามา หรือเปิดตั๋วในระบบได้ตลอด 24 ชม. นะครับ" },
+    { keywords: ["ใครสร้าง", "เจ้าของ", "ผู้สร้าง", "ใครทำ", "แอดมินคือใคร"], answer: "ผมถูกพัฒนาขึ้นโดยทีมงาน IT Support เพื่อช่วยดูแลและรับเรื่องแจ้งซ่อมให้พนักงานทุกคนครับ 👨‍💻" },
+    { keywords: ["ลาก่อน", "ไปละ", "บาย", "bye", "goodbye"], answer: "รับทราบครับ! ขอให้วันนี้เป็นวันที่ราบรื่นในการทำงานนะครับ 🫡" },
+
+    // 2. หมวดบัญชีผู้ใช้ / รหัสผ่าน (Account & Access)
+    { keywords: ["ลืมรหัส", "รหัสผ่าน", "เปลี่ยนรหัส", "password", "พาสเวิร์ด", "ล็อค", "lock", "เข้าไม่ได้", "login", "ล็อกอินไม่ได้"], answer: "ปัญหาเข้าสู่ระบบ/รหัสผ่าน 🔑 รบกวนกด **Create Ticket** แล้วระบุ **ชื่อผู้ใช้ (Username) หรืออีเมล** ที่ติดปัญหา เพื่อให้แอดมินทำการปลดล็อคหรือรีเซ็ตรหัสผ่านให้นะครับ" },
+    { keywords: ["สร้างยูสเซอร์", "พนักงานใหม่", "new user", "ขอสิทธิ์", "เข้าโฟลเดอร์ไม่ได้", "แชร์ไฟล์"], answer: "การขอสิทธิ์เข้าถึงหรือสร้าง User พนักงานใหม่ 📂 รบกวนหัวหน้างานเปิดตั๋วแจ้ง **ชื่อ-สกุล, แผนก, และสิทธิ์ที่ต้องการ** เพื่อเป็นหลักฐานให้ฝ่ายไอทีดำเนินการครับ" },
+    { keywords: ["อีเมล", "email", "mail", "เมล์", "ส่งเมลไม่ออก", "รับเมลไม่ได้", "outlook", "เมล์เด้ง"], answer: "ปัญหาอีเมล (Email) ✉️ เบื้องต้นตรวจสอบอินเทอร์เน็ตดูก่อนนะครับ ถ้ายื่นยันว่าเน็ตปกติ รบกวนแคปหน้าจอ Error ที่เกิดตอนส่งอีเมล แล้วแนบเปิดตั๋วแจ้งซ่อมมาได้เลยครับ" },
+
+    // 3. หมวดเครือข่าย / อินเทอร์เน็ต (Network & Connectivity)
+    { keywords: ["เน็ต", "อินเทอร์เน็ต", "internet", "wifi", "ไวไฟ", "เน็ตหลุด", "เชื่อมไม่ได้", "ต่อเน็ตไม่ได้", "ไม่มีเน็ต", "no internet"], answer: "ปัญหาอินเทอร์เน็ต/Wi-Fi 📡 เบื้องต้นลองกดปิด-เปิด Wi-Fi ที่เครื่องคอมพิวเตอร์/มือถือดูก่อนนะครับ หากยังใช้งานไม่ได้ รบกวนแจ้ง **อาคาร ชั้น และจุดที่นั่ง** ในหน้า Create Ticket เพื่อให้ช่าง Network เข้าไปตรวจสอบครับ" },
+    { keywords: ["ช้า", "โหลดไม่ขึ้น", "lag", "แลค", "ปิงสูง", "หมุนๆ", "ค้างๆ"], answer: "ถ้าระบบโหลดช้า 🐢 อาจเกิดจากเครือข่าย หรือเครื่องรันโปรแกรมหนักไป ลองปิดโปรแกรมที่ไม่ใช้ หรือรีสตาร์ทเครื่อง 1 รอบครับ ถ้าไม่ดีขึ้น เปิดตั๋วแจ้งซ่อมได้เลยครับ" },
+    { keywords: ["vpn", "วีพีเอ็น", "work from home", "wfh", "รีโมท", "remote"], answer: "ปัญหาการเชื่อมต่อ VPN 🌍 รบกวนเช็คอินเทอร์เน็ตที่บ้าน/มือถือก่อนนะครับ หากเน็ตปกติแต่ VPN Error โปรดเปิดตั๋วพร้อมแนบรูป Error ให้ทีมเช็ค Server ครับ" },
+    { keywords: ["สายแลน", "lan", "สายหลุด", "กากบาทสีแดง", "ลูกโลก", "สายขาด", "หัวหัก", "พอร์ตแลน"], answer: "คอมพิวเตอร์ขึ้นกากบาทสีแดง/ลูกโลก 🔌 ลองถอดสาย LAN (สายสีฟ้า/เหลือง/ขาว) ด้านหลังคอมแล้วเสียบใหม่ให้ดัง 'คลิก' ดูก่อนนะครับ หากสายขาดสามารถเปิดตั๋วขอสายเส้นใหม่ได้ครับ" },
+
+    // 4. หมวดฮาร์ดแวร์ / เครื่องคอมพิวเตอร์ (Hardware & PC)
+    { keywords: ["เปิดไม่ติด", "เครื่องดับ", "ดับเอง", "ไฟไม่เข้า", "กดปุ่มเปิดไม่ได้"], answer: "คอมพิวเตอร์เปิดไม่ติด 🔌 รบกวนตรวจเช็คปลั๊กไฟใต้โต๊ะและหลังเคสว่าหลวมหรือไม่ หากเช็คแล้วไฟเข้าแต่เครื่องยังเงียบ รบกวนเปิดตั๋วแจ้งซ่อมด่วนครับ" },
+    { keywords: ["จอฟ้า", "blue screen", "รีสตาร์ทเอง", "ค้าง", "จอค้าง", "แฮงค์"], answer: "คอมพิวเตอร์จอฟ้า/ค้าง 💻 อาจเกิดจากระบบ Windows มีปัญหาหรือความร้อนสะสม รบกวน **ถ่ายรูปหน้าจอ Error (รูปจอฟ้า)** แล้วแนบเปิดตั๋วแจ้งซ่อมให้ทีมไอทีวิเคราะห์ด้วยครับ" },
+    { keywords: ["หน้าจอ", "จอคอม", "monitor", "มอนิเตอร์", "ไม่มีภาพ", "no signal", "จอมืด", "จอกะพริบ", "ภาพลาย"], answer: "หน้าจอไม่มีภาพ/No Signal 🖥️ ลองขยับสายสัญญาณ (สายหัวสีน้ำเงิน/ขาว/ดำ) ทั้งด้านหลังจอและหลังคอมพิวเตอร์ให้แน่น และเช็คว่าไฟที่จอสว่างไหม ถ้าไม่หายเปิดตั๋วได้เลยครับ" },
+    { keywords: ["เมาส์", "mouse", "คีย์บอร์ด", "keyboard", "แป้นพิมพ์", "พิมพ์ไม่ได้", "คลิกไม่ได้", "ปุ่มค้าง", "เมาส์พัง", "เม้า"], answer: "เมาส์/คีย์บอร์ดมีปัญหา 🖱️ ลองถอดสาย USB แล้วย้ายไปเสียบช่องอื่น (ด้านหลังเคส) ดูก่อนครับ ถ้ารุ่นไร้สายลองเปลี่ยนถ่าน หากพังจริงเปิดตั๋วแจ้งขอเบิกทดแทนได้ครับ" },
+    { keywords: ["เสียง", "ลำโพง", "หูฟัง", "ไมค์", "headset", "speaker", "ไม่ได้ยิน", "ไม่มีเสียง", "เสียงไม่ออก"], answer: "ปัญหาเสียง/หูฟัง 🎧 ลองตรวจสอบระดับ Volume ที่มุมขวาล่างของจอภาพ และเช็คว่าเสียบสายถูกแจ็คหรือไม่ (สีเขียว=หูฟัง, สีชมพู/แดง=ไมค์) ครับ" },
+    { keywords: ["กล้อง", "webcam", "เว็บแคม", "zoom", "teams", "กล้องไม่ติด"], answer: "ปัญหากล้อง/Webcam 📷 ลองตรวจสอบว่ามีฝาปิดหน้ากล้อง (Privacy shutter) ปิดอยู่หรือไม่ และตรวจเช็คการอนุญาต (Permissions) ในโปรแกรม Zoom/Teams ดูก่อนนะครับ" },
+    { keywords: ["ร้อน", "เสียงดัง", "พัดลมดัง", "ควัน", "ไฟดูด", "ไฟช็อต", "upsร้อง", "เครื่องสำรองไฟ"], answer: "⚠️ **กรณีฉุกเฉิน:** หากอุปกรณ์มีเสียงร้องดัง (เช่น UPS) มีกลิ่นไหม้ หรือไฟช็อต แนะนำให้ **รีบถอดปลั๊กไฟออกทันที** และรีบเปิดตั๋วแจ้งความด่วนระดับ **Critical** หรือโทร 1111 ครับ!" },
+    { keywords: ["ขอคอม", "ขอเครื่องใหม่", "เบิกคอม", "เปลี่ยนคอม", "อัปเกรด"], answer: "การขออุปกรณ์/เบิกเครื่องใหม่ 📦 รบกวนให้ระดับผู้จัดการเปิดตั๋วแจ้งความประสงค์ พร้อมระบุ **รหัสทรัพย์สินเดิม (ถ้ามี)** และเหตุผลในการขอเบิก เพื่อเข้าสู่กระบวนการอนุมัติครับ" },
+
+    // 5. หมวดเครื่องพิมพ์ / สแกนเนอร์ / บาร์โค้ด (Printers & Scanners)
+    { keywords: ["ปริ้น", "ปริ้นเตอร์", "เครื่องปริ้น", "print", "printer", "ไม่ออก", "สั่งปริ้นไม่ได้", "offline", "ออฟไลน์"], answer: "สั่งพิมพ์ไม่ออก/เครื่องขึ้น Offline 🖨️ รบกวนรีสตาร์ทเครื่องคอมพิวเตอร์ 1 รอบ ถ้ายืนยันว่ายังพิมพ์ไม่ได้ รบกวนแจ้ง **แผนก และ ชื่อรุ่น/IP ของเครื่องพิมพ์** ลงในตั๋วแจ้งซ่อมครับ" },
+    { keywords: ["กระดาษติด", "paper jam", "ติดเครื่องปริ้น", "ยับ"], answer: "เครื่องพิมพ์กระดาษติด (Paper Jam) 📄 **กรุณาอย่าดึงกระดาษออกเองแรงๆ เพราะเซ็นเซอร์อาจหักได้** รบกวนเปิดตั๋วแจ้งจุดตั้งเครื่อง เดี๋ยวช่างจะเข้าไปเคลียร์กระดาษให้ครับ" },
+    { keywords: ["หมึก", "หมึกหมด", "toner", "หมึกจาง", "เลอะ", "หมึกหยด", "โทนเนอร์", "สีเพี้ยน"], answer: "ปัญหาหมึกหมด/สีเพี้ยน/เลอะ 🖨️ รบกวนเปิดตั๋วแจ้งขอเปลี่ยนหมึก โดยระบุ **รุ่นเครื่องพิมพ์ (เช่น HP LaserJet 1020)** มาได้เลยครับ ช่างจะนำ Toner ไปเปลี่ยนให้" },
+    { keywords: ["สแกนเนอร์", "scan", "เครื่องสแกน", "barcode", "บาร์โค้ด", "ยิงไม่ออก", "แสกน", "ตัวยิง", "เครื่องอ่าน"], answer: "ตัวอ่านบาร์โค้ด/สแกนเนอร์ใช้งานไม่ได้ 📠 ลองเช็คสาย USB ว่าเสียบแน่นหรือไม่ หากกดยิงแล้วไม่มีแสงเลเซอร์สีแดงออก รบกวนเปิดตั๋วแจ้งให้ช่างนำตัวใหม่ไปเทสเปลี่ยนให้ครับ" },
+    { keywords: ["zebra", "สติ๊กเกอร์", "sticker", "ปริ้นสติ๊กเกอร์", "เครื่องยิงสติ๊กเกอร์"], answer: "ปัญหาเครื่องปริ้นบาร์โค้ด/Zebra 🏷️ หากพิมพ์ไม่ออกหรือกระดาษรันไม่ตรงรอยปรุ แนะนำให้เปิดตั๋วแจ้งซ่อมเพื่อแจ้งให้ทีมช่างไปทำ Calibrate เครื่องให้ใหม่ครับ" },
+
+    // 6. หมวดซอฟต์แวร์ / ระบบปฏิบัติการ (Software & OS)
+    { keywords: ["โปรแกรม", "software", "แอป", "แอพ", "app", "error", "เออเร่อ", "เด้งออก", "เปิดไม่ขึ้น"], answer: "โปรแกรมขึ้น Error หรือเด้งออก ⚠️ รบกวน **แคปหน้าจอ (Capture)** หรือถ่ายรูป Error นั้น แล้วแนบรูปมาพร้อมกับการกด Create Ticket นะครับ ทีมไอทีจะได้ทราบสาเหตุที่ชัดเจนครับ" },
+    { keywords: ["word", "excel", "powerpoint", "office", "ออฟฟิศ", "not responding", "สูตรพัง", "เซฟไม่ได้"], answer: "โปรแกรม MS Office ค้าง (Not Responding) 📊 เบื้องต้นลองกด Task Manager ปิดโปรแกรมแล้วเปิดใหม่ดูครับ หากโปรแกรมเสียบ่อย เปิดตั๋วแจ้งให้ไอทีทำ Repair โปรแกรมให้ได้ครับ" },
+    { keywords: ["pdf", "acrobat", "adobe", "อ่านไฟล์ไม่ได้", "เปิดไฟล์ไม่ได้"], answer: "โปรแกรม PDF/Adobe มีปัญหา 📑 หากเปิดไฟล์ไม่ได้ ลองคลิกขวาที่ไฟล์ เลือก Open with -> Google Chrome ดูก่อนนะครับ หากต้องการโปรแกรมโดยตรง เปิดตั๋วขอติดตั้งโปรแกรมเพิ่มได้ครับ" },
+    { keywords: ["windows", "วินโดว์", "update", "อัปเดต", "จอดำ", "อัพเดท"], answer: "Windows รันอัปเดต/จอดำ ⚙️ หากเครื่องกำลังขึ้น Updating กรุณา **ห้ามปิดเครื่องหรือถอดปลั๊กเด็ดขาด** ให้รอจนกว่าจะเสร็จ 100% ครับ" },
+    { keywords: ["ไวรัส", "virus", "antivirus", "มัลแวร์", "แฮก", "hack", "โฟลเดอร์แปลก", "โดนเรียกค่าไถ่", "ransomware", "ไฟล์หาย"], answer: "🚨 **สงสัยว่าติดไวรัส / Ransomware:** หากไฟล์เปลี่ยนนามสกุลแปลกๆ ให้ **หยุดใช้งาน และ ถอดสาย LAN / ปิด Wi-Fi ทันที!!** จากนั้นเปิดตั๋วระดับ Critical หรือโทรหาไอทีด่วนครับ!" },
+
+    // 7. หมวดระบบโรงงาน / ERP / ความปลอดภัย (Factory Systems & CCTV)
+    { keywords: ["erp", "sap", "ระบบโรงงาน", "ตัดสต็อกไม่ได้", "สต็อก", "อนุมัติไม่ได้", "ข้อมูลไม่ขึ้น", "ระบบล่ม"], answer: "ปัญหาระบบ ERP/SAP 🏭 รบกวนแจ้ง **หน้าจอที่ทำรายการ, Error Code, หรือถ่ายรูปหน้าจอที่ติดปัญหา** แนบส่งมาในตั๋วแจ้งซ่อม เพื่อให้ทีม System Admin ไปตรวจสอบฐานข้อมูล (Database) ครับ" },
+    { keywords: ["สแกนนิ้ว", "สแกนหน้า", "เข้างาน", "เครื่องทาบบัตร", "ประตูล็อค", "เปิดประตูไม่ได้", "door access", "fingerprint"], answer: "ปัญหาเครื่องสแกนนิ้ว/Access Control ⏱️ รบกวนเปิดตั๋วแจ้งซ่อม ระบุ **พิกัดประตู หรือ เครื่องสแกนจุดไหน** ที่มีปัญหา ทีมเซ็นเซอร์จะรีบเข้าไปแก้ไขให้ครับ" },
+    { keywords: ["กล้องวงจรปิด", "cctv", "ขอดูภาพ", "ดูกล้องไม่ได้"], answer: "เกี่ยวกับกล้อง CCTV 📹 หากต้องการขอดูย้อนหลัง ต้องให้ระดับผู้จัดการหรือ HR อนุมัติผ่านใบคำร้องก่อนนะครับ หากแจ้งกล้องเสีย รบกวนระบุจุดที่กล้องตั้งอยู่ลงในตั๋วครับ" },
+    { keywords: ["เสียงตามสาย", "ประกาศ", "ลำโพงโรงงาน", "pa system"], answer: "ระบบประกาศเสียงตามสายมีปัญหา 📢 รบกวนระบุ **อาคาร และ โซนที่ไม่ได้ยินเสียง** เพื่อให้ช่างเดินสายเช็คสัญญาณครับ" },
+
+    // 8. หมวดระบบตั๋วและช่วยเหลือการใช้งานแอป (App Help)
+    { keywords: ["สร้างตั๋ว", "เปิดตั๋ว", "แจ้งซ่อมยังไง", "ทำไง", "ใช้งานยังไง", "how to use"], answer: "การใช้งานระบบแจ้งซ่อม 📝 ให้กดที่เมนู **Create Ticket** ด้านซ้ายมือ กรอกหมวดหมู่ สถานที่ และรายละเอียดให้ครบถ้วน (ถ้ามีรูปแนบด้วยจะดีมาก) แล้วกด Submit ครับ" },
+    { keywords: ["ตั๋วของฉัน", "ดูตั๋ว", "ตามงาน", "สเตตัส", "สถานะงาน", "status", "ถึงไหนแล้ว", "เสร็จยัง"], answer: "การติดตามสถานะงาน 🔍 ให้ไปที่แท็บ **My Tickets** คุณสามารถดูตั๋วที่คุณเปิดไว้ได้ทั้งหมด (New = รอรับงาน, In Progress = กำลังแก้, Resolved = เสร็จแล้ว) ครับ" },
+    { keywords: ["sla", "ใช้เวลากี่วัน", "รอนาน", "ความเร่งด่วน"], answer: "ระยะเวลาแก้ไข (SLA) ขึ้นอยู่กับความเร่งด่วนครับ ⏳: \n- Critical = 1 ชม. \n- High = 4 ชม. \n- Moderate = 24 ชม. \n- Low = 3 วันครับ" }
+];
+
+// 🔴 ระบบแชท AI แบบ Local Database
 window.sendAIMessage = async () => {
     const input = document.getElementById('ai-input');
-    const text = input.value.trim();
-    if (!text) return;
+    const rawText = input.value.trim();
+    if (!rawText) return;
     
     const consoleBox = document.getElementById('ai-chat-box');
-    consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 flex-row-reverse chat-user-bubble"><div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0 shadow-sm"><i class="fas fa-user text-[10px]"></i></div><div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-md text-sm leading-relaxed max-w-[85%]">${text}</div></div>`);
+    
+    consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 flex-row-reverse chat-user-bubble"><div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0 shadow-sm"><i class="fas fa-user text-[10px]"></i></div><div class="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-sm shadow-md text-sm leading-relaxed max-w-[85%]">${rawText}</div></div>`);
     input.value = '';
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
-    const thinkingId = 'think-' + Date.now() + Math.floor(Math.random() * 1000);
+    const thinkingId = 'think-' + Date.now();
     consoleBox.insertAdjacentHTML('beforeend', `<div id="${thinkingId}" class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-400 flex gap-1"><span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay: 0.2s">●</span><span class="animate-bounce" style="animation-delay: 0.4s">●</span></div></div>`);
     consoleBox.scrollTop = consoleBox.scrollHeight;
 
-    try {
-        // 🔴 หั่น API Key ตัวใหม่ล่าสุดของคุณเป็น 4 ท่อน หลบสแกน GitHub
-        const part1 = "AIzaSy"; 
-        const part2 = "B5D_QXTohc"; 
-        const part3 = "qWKkeU7ilrx"; 
-        const part4 = "GY_Hh0uyvCKc";
-        const API_KEY = part1 + part2 + part3 + part4; 
-        
-        const currentData = JSON.stringify(Object.values(window.globalTickets || {}).map(t => ({ Subject: t.subject, Status: t.status, Category: t.category })));
-        const prompt = `คุณคือ Serviceman ผู้ช่วยส่วนตัวอัจฉริยะ และพนักงานฝ่าย IT ประจำโรงงาน ข้อมูลตั๋วแจ้งซ่อมในระบบปัจจุบัน (JSON): ${currentData}\nกฎการตอบ: 1. ถ้าผู้ใช้ถามเรื่องงาน IT ให้อ่านและวิเคราะห์จากข้อมูล JSON ด้านบน 2. ถ้าผู้ใช้ถามเรื่องทั่วไป ให้ตอบแบบรอบรู้เหมือน AI ทั่วไป โดยใช้ความรู้ที่คุณมี 3. ใช้ภาษาไทย สุภาพ เป็นธรรมชาติ จัดรูปแบบให้อ่านง่าย (ใช้ HTML tags เช่น <br>, <strong> ห้ามใช้ Markdown ** เด็ดขาด)\nคำถามจากผู้ใช้: "${text}"`;
-        
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        const data = await response.json();
-        
+    // หน่วงเวลาจำลอง AI คิด (0.8 วินาที)
+    setTimeout(() => {
         document.getElementById(thinkingId)?.remove();
-        
-        // ถ้า API ทำงานสำเร็จ
-        if (!data.error) {
-            let rawText = data.candidates[0].content.parts[0].text;
-            let formattedText = rawText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>').replace(/\*(.*?)/g, '<li class="ml-4 mt-1">$1</li>').replace(/\n/g, '<br>');
-            consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${formattedText}</div></div>`);
-            consoleBox.scrollTop = consoleBox.scrollHeight;
-            return;
-        } else {
-            throw new Error(data.error.message);
-        }
-        
-    } catch (error) {
-        // 🔴 Fallback System: ถ้า AI พัง ให้บอทตอบคำถามตาม Keyword แทน
-        document.getElementById(thinkingId)?.remove();
-        console.warn("Gemini API Error, falling back to rule-based bot...", error);
 
-        let fallbackReply = "ระบบ AI ขัดข้องชั่วคราวครับ 😅 แต่คุณสามารถกด **สร้างตั๋ว (Create Ticket)** เพื่อให้ช่างไอทีช่วยเหลือได้เลยครับ";
-        const lowercaseText = text.toLowerCase();
+        const lowercaseText = rawText.toLowerCase();
+        let botReply = "";
 
-        if (lowercaseText.includes("ดี") || lowercaseText.includes("หวัดดี") || lowercaseText.includes("hello") || lowercaseText.includes("hi")) {
-            fallbackReply = "สวัสดีครับ! วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยดูแลไหมครับ?";
-        } else if (lowercaseText.includes("เน็ต") || lowercaseText.includes("wifi") || lowercaseText.includes("อินเทอร์เน็ต")) {
-            fallbackReply = "เรื่องอินเทอร์เน็ต รบกวนแจ้งอาคารและชั้นที่พบปัญหาในหน้า **Create Ticket** เพื่อให้ทีม Network ตรวจสอบนะครับ 📡";
-        } else if (lowercaseText.includes("รหัส") || lowercaseText.includes("password") || lowercaseText.includes("พาสเวิร์ด")) {
-            fallbackReply = "ลืมรหัสผ่านใช่ไหมครับ? สามารถติดต่อฝ่ายไอทีที่เบอร์ 1111 หรือเปิดตั๋วแจ้งให้เรารีเซ็ตให้ได้ครับ 🔑";
-        } else if (lowercaseText.includes("ปริ้น") || lowercaseText.includes("print") || lowercaseText.includes("หมึก")) {
-            fallbackReply = "ปัญหาเครื่องปริ้นเตอร์ รบกวนระบุ **แผนกและจุดตั้งเครื่อง** ลงในตั๋วแจ้งซ่อมด้วยนะครับ เดี๋ยวช่างจะรีบไปดูให้ครับ 🖨️";
-        } else if (lowercaseText.includes("ช้า") || lowercaseText.includes("ค้าง") || lowercaseText.includes("lag")) {
-             fallbackReply = "คอมพิวเตอร์ทำงานช้า ลองรีสตาร์ทเครื่องดูสักรอบนะครับ ถ้าไม่หาย เปิดตั๋วแจ้งซ่อมได้เลยครับ 💻";
+        // 🔍 ค้นหาคำตอบในฐานข้อมูล (Match Keywords)
+        for (let i = 0; i < botDatabase.length; i++) {
+            const entry = botDatabase[i];
+            const isMatch = entry.keywords.some(keyword => lowercaseText.includes(keyword));
+            
+            if (isMatch) {
+                botReply = entry.answer;
+                break;
+            }
         }
 
-        fallbackReply = fallbackReply.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>');
+        // ❌ ถ้าหาคำตอบไม่เจอ
+        if (botReply === "") {
+            botReply = "ขออภัยครับ ปัญหานี้อาจจะต้องให้ผู้เชี่ยวชาญตรวจสอบ 😅 แนะนำให้กดเมนู **Create Ticket (แจ้งปัญหาใหม่)** แล้วระบุรายละเอียดให้ทีมช่างไอทีตรวจสอบให้นะครับ";
+        }
 
-        consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${fallbackReply}</div></div>`);
+        // แปลงเครื่องหมาย ** เป็นตัวหนา
+        botReply = botReply.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>');
+        // แปลงการขึ้นบรรทัดใหม่
+        botReply = botReply.replace(/\n/g, '<br>');
+
+        consoleBox.insertAdjacentHTML('beforeend', `<div class="flex items-start gap-4 mb-6 chat-ai-bubble"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">${botReply}</div></div>`);
         consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
+
+    }, 800); 
 };
 
 document.getElementById('auth-form').onsubmit = (e) => {

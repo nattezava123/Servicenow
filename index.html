@@ -388,8 +388,17 @@
             <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 rounded-t-[2rem]" id="ai-chat-box">
                 <div class="flex items-start gap-4">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fas fa-robot text-[10px]"></i></div>
-                    <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">
-                        สวัสดีครับ! ผมคือ <strong>Serviceman</strong> 🤖 ผู้ช่วย AI ประจำศูนย์ไอทีโรงงาน วันนี้มีอะไรให้ผมช่วยสรุปหรือตรวจสอบข้อมูลตั๋วแจ้งซ่อมไหมครับ?
+                    <div class="flex flex-col gap-2 max-w-[85%]">
+                        <div class="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-slate-700 leading-relaxed">
+                            สวัสดีครับ! ผมคือ <strong>Serviceman</strong> 🤖 ผู้ช่วยไอทีประจำโรงงาน วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยตรวจสอบไหมครับ เลือกเมนูด้านล่าง หรือพิมพ์บอกผมได้เลยครับ 👇
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            <button onclick="sendQuickReply('คอมเปิดไม่ติด')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">💻 คอมพิวเตอร์</button>
+                            <button onclick="sendQuickReply('ปริ้นไม่ออก')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">🖨️ เครื่องปริ้น</button>
+                            <button onclick="sendQuickReply('เน็ตหลุด')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">📡 อินเทอร์เน็ต</button>
+                            <button onclick="sendQuickReply('ลืมรหัสผ่าน')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">🔑 รหัสผ่าน</button>
+                            <button onclick="sendQuickReply('วิธีแจ้งซ่อม')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">📝 วิธีแจ้งซ่อม</button>
+                        </div>
                     </div>
                 </div>
             </div>

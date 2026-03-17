@@ -374,9 +374,9 @@ window.closeAIModal = () => {
     setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
 };
 
-// 🧠 ฐานข้อมูลสมองบอท (Ultimate IT Helpdesk Database) 
+// 🧠 ฐานข้อมูลสมองบอท (Ultimate IT Helpdesk Database)
 const botDatabase = [
-    { keywords: ["สวัสดี", "หวัดดี", "ดีครับ", "ดีค่ะ", "hello", "hi", "ทักทาย", "ทำอะไรได้บ้าง", "ช่วยด้วย", "มีใครอยู่ไหม", "แอดมิน"], answer: "สวัสดีครับ! ผมคือ **Serviceman** 🤖 ผู้ช่วยไอทีประจำโรงงาน วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยตรวจสอบไหมครับ พิมพ์อาการเสียสั้นๆ มาได้เลยครับ" },
+    { keywords: ["ดี", "ทัก", "เทส", "test", "สวัสดี", "หวัดดี", "ดีครับ", "ดีค่ะ", "hello", "hi", "ทักทาย", "ทำอะไรได้บ้าง", "ช่วยด้วย", "มีใครอยู่ไหม", "แอดมิน"], answer: "สวัสดีครับ! ผมคือ **Serviceman** 🤖 ผู้ช่วยไอทีประจำโรงงาน วันนี้ระบบไอทีมีปัญหาตรงไหนให้ผมช่วยตรวจสอบไหมครับ พิมพ์อาการเสียสั้นๆ มาได้เลยครับ" },
     { keywords: ["ขอบคุณ", "แต้งกิ้ว", "thank", "thx", "เยี่ยม", "ดีมาก", "ok", "โอเค", "ได้แล้ว", "หายแล้ว", "ขอบใจ", "อืม"], answer: "ยินดีให้บริการเสมอครับ! 🎉 ถ้ามีปัญหาการใช้งานอื่นๆ แจ้งเข้ามา หรือเปิดตั๋วในระบบได้ตลอด 24 ชม. นะครับ" },
     { keywords: ["ใครสร้าง", "เจ้าของ", "ผู้สร้าง", "ใครทำ", "แอดมินคือใคร", "ชื่ออะไร"], answer: "ผมคือ Serviceman AI ครับ ถูกพัฒนาขึ้นโดยทีมงาน IT Support เพื่อช่วยดูแลและรับเรื่องแจ้งซ่อมให้พนักงานทุกคนครับ 👨‍💻" },
     { keywords: ["ลาก่อน", "ไปละ", "บาย", "bye", "goodbye", "ฝันดี"], answer: "รับทราบครับ! ขอให้วันนี้เป็นวันที่ราบรื่นในการทำงานนะครับ 🫡" },
@@ -414,10 +414,16 @@ const botDatabase = [
     { keywords: ["กล้องวงจรปิด", "cctv", "ขอดูภาพ", "ดูกล้องไม่ได้", "ขอดูกล้อง", "กล้องดับ"], answer: "เกี่ยวกับกล้อง CCTV 📹 หากต้องการขอดูย้อนหลังหรือดึงไฟล์ภาพ ต้องให้ระดับผู้จัดการหรือ HR เซ็นอนุมัติใบคำร้องก่อนนะครับ หากแจ้งกล้องเสีย ระบุจุดที่กล้องตั้งอยู่ลงในตั๋วได้เลยครับ" },
     { keywords: ["ย้ายโต๊ะ", "ย้ายแผนก", "ย้ายคอม", "move", "ย้ายเครื่อง"], answer: "การขอย้ายโต๊ะ/ย้ายคอมพิวเตอร์ 🪑 รบกวนเปิดตั๋วแจ้งล่วงหน้า 1-2 วันครับ ระบุ **จุดเดิม และ จุดใหม่** ที่จะไปนั่งให้ชัดเจน เพื่อให้ทีมไอทีเตรียมเรื่องการเดินสาย LAN และปลั๊กไฟให้พร้อมครับ" },
     { keywords: ["ยืมคอม", "ขอยืม", "ยืมโปรเจคเตอร์", "โปรเจคเตอร์", "projector", "อุปกรณ์ประชุม"], answer: "การขอยืมอุปกรณ์ไอทีส่วนกลาง (เช่น โปรเจคเตอร์, โน้ตบุ๊กชั่วคราว, สายแปลง) 🎒 รบกวนเปิดตั๋วจองคิวล่วงหน้า ระบุ **วันที่ยืม และวันที่คืน** ให้ชัดเจนครับ" },
-    { keywords: ["สร้างตั๋ว", "เปิดตั๋ว", "แจ้งซ่อมยังไง", "ทำไง", "ใช้งานยังไง", "how to use", "คู่มือ", "สอนหน่อย"], answer: "การแจ้งปัญหา 📝 ให้กดที่เมนู **Create Ticket** ด้านซ้ายมือ เลือกหมวดหมู่, ความเร่งด่วน, ระบุสถานที่ตั้ง และเขียนรายละเอียดอาการให้ครบถ้วน (ถ้ามีรูปแนบมาด้วยจะเยี่ยมมาก) แล้วกด Submit ครับ" },
+    { keywords: ["สร้างตั๋ว", "เปิดตั๋ว", "แจ้งซ่อมยังไง", "ทำไง", "ใช้งานยังไง", "how to use", "คู่มือ", "สอนหน่อย", "วิธีแจ้งซ่อม"], answer: "การแจ้งปัญหา 📝 ให้กดที่เมนู **Create Ticket** ด้านซ้ายมือ เลือกหมวดหมู่, ความเร่งด่วน, ระบุสถานที่ตั้ง และเขียนรายละเอียดอาการให้ครบถ้วน (ถ้ามีรูปแนบมาด้วยจะเยี่ยมมาก) แล้วกด Submit ครับ" },
     { keywords: ["ตั๋วของฉัน", "ดูตั๋ว", "ตามงาน", "สเตตัส", "สถานะงาน", "status", "ถึงไหนแล้ว", "เสร็จยัง", "ยังไม่มาซ่อม"], answer: "การติดตามสถานะ 🔍 ไปที่เมนู **My Tickets** คุณจะเห็นตั๋วของคุณทั้งหมด\n🔵 New = รอรับงาน\n🟡 In Progress = กำลังดำเนินการ\n🟢 Resolved = แก้ไขเสร็จสิ้นแล้วครับ" },
     { keywords: ["sla", "ใช้เวลากี่วัน", "รอนาน", "ความเร่งด่วน", "กี่วันเสร็จ", "พรุ่งนี้ได้ไหม"], answer: "ระยะเวลามาตรฐานในการแก้ไข (SLA) ขึ้นอยู่กับ Priority ตอนเปิดตั๋วครับ ⏳\n🔴 Critical = ภายใน 1 ชม.\n🟠 High = ภายใน 4 ชม.\n🟡 Moderate = ภายใน 24 ชม.\n🟢 Low = ภายใน 3 วันทำงานครับ" }
 ];
+
+// 🔴 ฟังก์ชันสำหรับปุ่ม Quick Reply
+window.sendQuickReply = (text) => {
+    document.getElementById('ai-input').value = text;
+    window.sendAIMessage();
+};
 
 window.sendAIMessage = async () => {
     const input = document.getElementById('ai-input');
@@ -442,7 +448,6 @@ window.sendAIMessage = async () => {
 
         for (let i = 0; i < botDatabase.length; i++) {
             const entry = botDatabase[i];
-            
             for (let j = 0; j < entry.keywords.length; j++) {
                 const keyword = entry.keywords[j].toLowerCase();
                 if (cleanText.includes(keyword) || rawText.toLowerCase().includes(keyword)) {
@@ -453,8 +458,14 @@ window.sendAIMessage = async () => {
             if (botReply !== "") break; 
         }
 
+        // 🔴 ถ้าหาคำตอบไม่เจอ ให้บอทเด้งปุ่ม Quick Reply ให้เลือกอีกรอบ
         if (botReply === "") {
-            botReply = "ขออภัยครับ คำถามนี้อาจจะลึกซึ้งเกินกว่าข้อมูลที่ผมมีในระบบ 😅 แนะนำให้กดเมนู **Create Ticket (แจ้งปัญหาใหม่)** เพื่อระบุรายละเอียดอาการให้พี่ๆ ทีมช่างไอทีไปตรวจสอบให้นะครับ ชัวร์ที่สุดครับ!";
+            botReply = `ขออภัยครับ คำถามนี้อาจจะลึกซึ้งเกินกว่าข้อมูลที่ผมมีในระบบ 😅 แนะนำให้กดเมนู **Create Ticket (แจ้งปัญหาใหม่)** เพื่อระบุรายละเอียดอาการให้พี่ๆ ทีมช่างไอทีไปตรวจสอบให้นะครับ ชัวร์ที่สุดครับ!<br><br>หรือลองเลือกหัวข้อปัญหาด้านล่างนี้ดูครับ 👇<br>
+            <div class="flex flex-wrap gap-2 mt-3">
+                <button onclick="sendQuickReply('คอมเปิดไม่ติด')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">💻 คอมพิวเตอร์</button>
+                <button onclick="sendQuickReply('ปริ้นไม่ออก')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">🖨️ เครื่องปริ้น</button>
+                <button onclick="sendQuickReply('เข้าเน็ตไม่ได้')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100 rounded-full text-xs font-bold transition-colors">📡 อินเทอร์เน็ต</button>
+            </div>`;
         }
 
         botReply = botReply.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600">$1</strong>');
@@ -512,7 +523,6 @@ function loadDashboardData() {
             const displayId = "TKT-" + id.substring(0, 4).toUpperCase();
             window.globalTickets[id] = t;
             
-            // 🔴 ความเป็นส่วนตัว: User เห็นเฉพาะตั๋วตัวเอง
             const isMyTicket = t.callerEmail === auth.currentUser.email;
             if (!isAdmin && !isMyTicket) return;
             
@@ -763,7 +773,6 @@ window.openModal = (id) => {
     currentTicketId = id;
     const t = window.globalTickets[id];
     
-    // 🔴 ความเป็นส่วนตัว: ป้องกันคนอื่นดูตั๋ว (ยกเว้นแอดมิน)
     if (!isAdmin && t.callerEmail !== auth.currentUser.email) {
         Swal.fire({ icon: 'error', title: 'Access Denied', text: 'คุณไม่มีสิทธิ์เข้าถึงตั๋วแจ้งซ่อมของผู้อื่นครับ' });
         return;

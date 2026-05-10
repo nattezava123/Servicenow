@@ -526,32 +526,42 @@ function loadDashboardData() {
             const isMyTicket = t.callerEmail === auth.currentUser.email;
             if (!isAdmin && !isMyTicket) return;
             
-            if(t.status === 'Resolved' && t.assignedTo === auth.currentUser.email) myResolved++;
+            // --- แก้บัค Cannot read properties of undefined ตรงนี้ ---
+            const safeStatus = t.status || 'New';
+            const safePriority = t.priority || '';
             
-            counts[t.status] = (counts[t.status] || 0) + 1;
+            if(safeStatus === 'Resolved' && t.assignedTo === auth.currentUser.email) myResolved++;
+            
+            counts[safeStatus] = (counts[safeStatus] || 0) + 1;
             counts['Total']++;
 
             const bgColors = { 'New': 'bg-blue-100 text-blue-700', 'In Progress': 'bg-amber-100 text-amber-700', 'Resolved': 'bg-emerald-100 text-emerald-700' };
-            let statusKey = 'status_' + t.status.toLowerCase().replace(' ', '_');
-            let displayStatus = dict[currentLang][statusKey] || t.status;
-            let statusHtml = `<span class="${bgColors[t.status]} px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-widest flex w-fit gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full ${t.status==='New'?'bg-blue-500':(t.status==='In Progress'?'bg-amber-500':'bg-emerald-500')}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
+            let statusKey = 'status_' + safeStatus.toLowerCase().replace(' ', '_');
+            let displayStatus = dict[currentLang][statusKey] || safeStatus;
+            
+            // กำหนดสีเผื่อ status ประหลาด
+            let badgeBgClass = bgColors[safeStatus] || bgColors['New'];
+            let dotBgClass = safeStatus === 'New' ? 'bg-blue-500' : (safeStatus === 'In Progress' ? 'bg-amber-500' : 'bg-emerald-500');
+            
+            let statusHtml = `<span class="${badgeBgClass} px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-widest flex w-fit gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full ${dotBgClass}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
 
-            let priIndicator = t.priority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (t.priority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
+            // ใช้ safePriority แทน t.priority ตรงๆ ป้องกัน Error
+            let priIndicator = safePriority.includes('1') ? '<i class="fas fa-fire text-rose-500 mr-2"></i>' : (safePriority.includes('2') ? '<i class="fas fa-exclamation-circle text-orange-500 mr-2"></i>' : '');
             let imgIcon = t.imageUrl ? ' <i class="fas fa-image text-blue-400 ml-1 text-[10px]"></i>' : '';
 
             if (isMyTicket) {
                 userHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" onclick="openModal('${id}')">
                     <td class="py-4 px-6 font-bold text-slate-500 text-xs">${displayId}</td>
-                    <td class="py-4 px-6"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div></td>
+                    <td class="py-4 px-6"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject || 'No Subject'}${imgIcon}</div></td>
                     <td class="py-4 px-6">${statusHtml}</td>
                     <td class="py-4 px-6 text-right text-xs text-slate-500">${timeAgo(t.createdAt?.toDate())}</td>
                 </tr>`;
             }
 
             if (isAdmin) {
-                adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" data-status="${t.status}" onclick="openModal('${id}')">
+                adminHtml += `<tr class="hover:bg-slate-50 transition group border-b border-slate-50 cursor-pointer" data-status="${safeStatus}" onclick="openModal('${id}')">
                     <td class="py-4 px-4 font-bold text-slate-500 text-xs">${displayId}</td>
-                    <td class="py-4 px-4"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject}${imgIcon}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail}</div></td>
+                    <td class="py-4 px-4"><div class="font-bold text-slate-800 text-sm">${priIndicator}${t.subject || 'No Subject'}${imgIcon}</div><div class="text-[10px] text-slate-400 mt-0.5">${t.callerEmail || '-'}</div></td>
                     <td class="py-4 px-4 text-xs font-bold text-slate-600">${t.assignedTo ? t.assignedTo.split('@')[0].toUpperCase() : '-'}</td>
                     <td class="py-4 px-4">${statusHtml}</td>
                     <td class="py-4 px-4 text-right opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
@@ -568,7 +578,7 @@ function loadDashboardData() {
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500"><i class="fas fa-ticket-alt"></i></div>
                         <div>
-                            <p class="text-sm font-bold text-slate-800">${t.subject}</p>
+                            <p class="text-sm font-bold text-slate-800">${t.subject || 'No Subject'}</p>
                             <p class="text-[10px] text-slate-400 font-bold uppercase">${displayId} • ${timeAgo(t.createdAt?.toDate())}</p>
                         </div>
                     </div>
@@ -581,10 +591,10 @@ function loadDashboardData() {
         document.getElementById('user-ticket-list').innerHTML = userHtml || emptyState;
         if(isAdmin) document.getElementById('admin-ticket-list').innerHTML = adminHtml || emptyState;
         
-        document.getElementById('stat-new').innerText = counts['New'];
-        document.getElementById('stat-progress').innerText = counts['In Progress'];
-        document.getElementById('stat-resolved').innerText = counts['Resolved'];
-        document.getElementById('stat-total').innerText = counts['Total'];
+        document.getElementById('stat-new').innerText = counts['New'] || 0;
+        document.getElementById('stat-progress').innerText = counts['In Progress'] || 0;
+        document.getElementById('stat-resolved').innerText = counts['Resolved'] || 0;
+        document.getElementById('stat-total').innerText = counts['Total'] || 0;
         document.getElementById('stat-admin-my-resolved').innerText = myResolved;
         document.getElementById('dash-recent-list').innerHTML = recentDashHtml || emptyRecent;
 
@@ -592,6 +602,9 @@ function loadDashboardData() {
         document.getElementById('dash-user-name').innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
         
         if(isAdmin) setAdminFilter(currentAdminFilter);
+    }, (error) => {
+        // ดัก Error ของ onSnapshot ไว้ด้วย
+        console.error("Firebase Listener Error:", error);
     });
 }
 
@@ -779,9 +792,9 @@ window.openModal = (id) => {
     }
 
     document.getElementById('modal-id').innerText = "TKT-" + id.substring(0, 4).toUpperCase();
-    document.getElementById('modal-subject').innerText = t.subject;
-    document.getElementById('modal-category').innerText = t.category;
-    document.getElementById('modal-priority').innerText = t.priority;
+    document.getElementById('modal-subject').innerText = t.subject || 'No Subject';
+    document.getElementById('modal-category').innerText = t.category || '-';
+    document.getElementById('modal-priority').innerText = t.priority || '-';
     
     let bldg = t.building || '-';
     let fl = t.floor || '-';
@@ -789,7 +802,7 @@ window.openModal = (id) => {
     let line = t.line || '-';
     document.getElementById('modal-location').innerText = `Bldg: ${bldg}, Floor: ${fl}, Dept: ${dept}, Line: ${line}`;
     document.getElementById('modal-broken-item').innerText = t.brokenItem || 'Not specified';
-    document.getElementById('modal-desc').innerText = t.description;
+    document.getElementById('modal-desc').innerText = t.description || '-';
 
     const imgContainer = document.getElementById('modal-image-container');
     const imgTag = document.getElementById('modal-image');
@@ -800,16 +813,21 @@ window.openModal = (id) => {
         imgContainer.classList.add('hidden');
     }
 
-    document.getElementById('modal-caller').innerText = t.callerEmail;
+    document.getElementById('modal-caller').innerText = t.callerEmail || '-';
     document.getElementById('modal-assignee').innerText = t.assignedTo || 'Unassigned';
     document.getElementById('modal-date').innerText = t.createdAt ? t.createdAt.toDate().toLocaleString() : '';
     
     if(isAdmin) document.getElementById('btn-modal-edit').classList.remove('hidden');
 
+    const safeStatus = t.status || 'New';
     const bgColors = { 'New': 'bg-blue-100 text-blue-700', 'In Progress': 'bg-amber-100 text-amber-700', 'Resolved': 'bg-emerald-100 text-emerald-700' };
-    let statusKey = 'status_' + t.status.toLowerCase().replace(' ', '_');
-    let displayStatus = dict[currentLang][statusKey] || t.status;
-    document.getElementById('modal-status-badge').innerHTML = `<span class="${bgColors[t.status]} px-4 py-1.5 rounded-lg text-xs uppercase font-black tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full ${t.status==='New'?'bg-blue-500':(t.status==='In Progress'?'bg-amber-500':'bg-emerald-500')}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
+    let statusKey = 'status_' + safeStatus.toLowerCase().replace(' ', '_');
+    let displayStatus = dict[currentLang][statusKey] || safeStatus;
+    
+    let badgeBgClass = bgColors[safeStatus] || bgColors['New'];
+    let dotBgClass = safeStatus === 'New' ? 'bg-blue-500' : (safeStatus === 'In Progress' ? 'bg-amber-500' : 'bg-emerald-500');
+
+    document.getElementById('modal-status-badge').innerHTML = `<span class="${badgeBgClass} px-4 py-1.5 rounded-lg text-xs uppercase font-black tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full ${dotBgClass}"></span><span data-i18n="${statusKey}">${displayStatus}</span></span>`;
 
     const modal = document.getElementById('ticket-modal');
     const box = document.getElementById('modal-box');

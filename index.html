@@ -3,167 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Chat AI</title>
+    <title>Serviceman AI - Powered by Groq</title>
+    
+    <!-- เรียกใช้ Tailwind CSS และ FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- เรียกใช้ SweetAlert2 สำหรับ Popup กรอก API Key -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
-        #chat-container {
-            width: 400px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        #chat-box {
-            height: 500px;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .message {
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-        .user-msg {
-            background-color: #007bff;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .ai-msg {
-            background-color: #e9ecef;
-            color: black;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-        #input-area {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background: #fff;
-        }
-        #user-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-        }
-        button {
-            padding: 10px 15px;
-            margin-left: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
-    <div id="chat-container">
-        <div id="chat-box">
-            <div class="message ai-msg">สวัสดีครับ! ระบบปรับปรุงพร้อมใช้งานแล้ว ลองพิมพ์มาได้เลยครับ</div>
+    <!-- กรอบแชทหลัก -->
+    <div class="bg-white w-full max-w-md h-[650px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-5 flex items-center gap-4 text-white shadow-md z-10 relative">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
+                <i class="fas fa-bolt text-2xl text-yellow-300"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-black leading-tight">Serviceman AI</h2>
+                <p class="text-[10px] text-indigo-100 font-medium uppercase tracking-widest mt-0.5">Powered by Groq Llama 3</p>
+            </div>
+            
+            <!-- ปุ่มตั้งค่า API Key -->
+            <button onclick="promptApiKey()" class="ml-auto w-10 h-10 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/30 transition shadow-sm" title="ตั้งค่า API Key">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">ส่ง</button>
+
+        <!-- พื้นที่แสดงข้อความแชท -->
+        <div id="chat-box" class="flex-1 overflow-y-auto p-5 bg-slate-50 space-y-4 relative">
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+                <i class="fas fa-robot text-9xl"></i>
+            </div>
+
+            <div class="flex items-start gap-3 relative z-10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white shrink-0 shadow-md mt-1">
+                    <i class="fas fa-robot text-xs"></i>
+                </div>
+                <div class="bg-white border border-slate-200 p-4 rounded-[1.2rem] rounded-tl-sm text-sm text-slate-700 shadow-sm max-w-[85%] leading-relaxed">
+                    สวัสดีครับ! ⚡<br><br>
+                    เพื่อเริ่มใช้งาน กรุณากดที่ <b>ปุ่มรูปฟันเฟือง</b> มุมขวาบน เพื่อใส่ <b>Groq API Key</b> ก่อนนะครับ (ข้อมูลจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น ปลอดภัยแน่นอนครับ)
+                </div>
+            </div>
         </div>
+
+        <!-- พื้นที่พิมพ์ข้อความ -->
+        <div class="p-4 bg-white border-t border-slate-100 z-10">
+            <div class="relative flex items-center gap-2">
+                <input type="text" id="chat-input" placeholder="พิมพ์ข้อความที่นี่..." 
+                       class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-14 py-3.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                       onkeypress="if(event.key === 'Enter') sendMessage()" autocomplete="off">
+                <button onclick="sendMessage()" id="send-btn" 
+                        class="absolute right-2 aspect-square h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane text-xs -ml-0.5"></i>
+                </button>
+            </div>
+        </div>
+
     </div>
 
+    <!-- สคริปต์การทำงาน -->
     <script>
-        // 🔴 1. นำ API Key ของ Google Gemini มาใส่ตรงนี้
-        const API_KEY = "AIzaSyBPHkU_VaaS_iraWotJ2q7ziGGOBS7UgL4"; 
-        
-        // 🟢 2. กำหนดชื่อโมเดล AI (ถ้าเกิด Error อีก ให้ลองเปลี่ยนจาก "gemini-1.5-flash" เป็น "gemini-pro" ดูครับ)
-        const MODEL_NAME = "gemini-pro";
+        const chatBox = document.getElementById('chat-box');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // โหลด API Key จาก LocalStorage ถ้ามี
+        let currentApiKey = localStorage.getItem('groqApiKey') || '';
+
+        // ฟังก์ชัน Popup ให้กรอก API Key
+        function promptApiKey() {
+            Swal.fire({
+                title: 'ตั้งค่า Groq API Key',
+                text: 'กรุณาใส่ API Key ของคุณ (ขึ้นต้นด้วย gsk_)',
+                input: 'password', // ปิดบังข้อความตอนพิมพ์เพื่อความปลอดภัย
+                inputValue: currentApiKey,
+                inputPlaceholder: 'gsk_xxxxxxxxxxxxxxxxxxxx',
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'กรุณาใส่ API Key!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    currentApiKey = result.value.trim();
+                    localStorage.setItem('groqApiKey', currentApiKey); // บันทึกลงเครื่อง
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: 'ระบบจำ API Key ของคุณแล้ว เริ่มแชทได้เลย',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
 
         async function sendMessage() {
-            const inputField = document.getElementById("user-input");
-            const message = inputField.value.trim();
-            if (message === "") return;
+            const text = chatInput.value.trim();
+            if (!text) return;
 
-            // แสดงข้อความของผู้ใช้
-            appendMessage(message, "user-msg");
-            inputField.value = "";
+            // ตรวจสอบว่าใส่ API Key หรือยัง
+            if (!currentApiKey || !currentApiKey.startsWith('gsk_')) {
+                promptApiKey();
+                return;
+            }
 
-            // แสดงข้อความกำลังโหลดของ AI
-            const loadingId = appendMessage("กำลังคิด...", "ai-msg");
+            appendUserMessage(text);
+            
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+
+            const typingId = showTypingIndicator();
 
             try {
-                // เรียกใช้งาน API ของ Gemini
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`, {
+                // ยิง Request ไปหา Groq API ด้วย Key ที่กรอกไว้
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Authorization": `Bearer ${currentApiKey}`,
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: message }] }]
+                        model: "llama3-70b-8192", 
+                        messages: [
+                            { 
+                                role: "system", 
+                                content: "คุณคือ Serviceman บอทผู้ช่วยแผนกไอทีในโรงงานอุตสาหกรรม ให้ตอบคำถามเป็นภาษาไทย สั้นๆ กระชับ เข้าใจง่าย เป็นกันเอง หากเจอคำถามที่ซับซ้อนเกินไปให้แนะนำผู้ใช้ไปกรอกข้อมูลแจ้งซ่อมในระบบ" 
+                            },
+                            { 
+                                role: "user", 
+                                content: text 
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 500
                     })
                 });
 
-                const data = await response.json();
-
-                // ระบบดักจับ Error แบบละเอียด (เช็ค Error จากฝั่ง Google)
                 if (!response.ok) {
-                    let errorMsg = "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์";
-                    if (data.error && data.error.message) {
-                        errorMsg = data.error.message;
-                    }
-                    throw new Error(errorMsg);
+                    if(response.status === 401) throw new Error("Unauthorized");
+                    throw new Error("Groq API Error");
                 }
+
+                const data = await response.json();
                 
-                // ดึงข้อความตอบกลับจาก AI
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                
-                // อัปเดตข้อความแทนที่คำว่า "กำลังคิด..."
-                document.getElementById(loadingId).innerText = aiResponse;
+                let botReply = data.choices[0].message.content;
+                botReply = botReply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
+
+                removeTypingIndicator(typingId);
+                appendBotMessage(botReply);
 
             } catch (error) {
-                // แสดงข้อความ Error บนหน้าแชตให้เห็นชัดๆ
-                document.getElementById(loadingId).innerText = "❌ Error: " + error.message;
-                console.error("รายละเอียด Error แบบเต็ม:", error);
+                console.error("Error fetching Groq:", error);
+                removeTypingIndicator(typingId);
+                
+                if(error.message === "Unauthorized") {
+                    appendBotMessage("<span class='text-rose-600'>API Key ไม่ถูกต้อง หรือหมดอายุ กรุณากดปุ่มฟันเฟืองเพื่อตั้งค่าใหม่ครับ ❌</span>");
+                } else {
+                    appendBotMessage("<span class='text-rose-600'>ระบบประมวลผลขัดข้อง ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ รบกวนลองใหม่นะครับ 🛠️</span>");
+                }
+            } finally {
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
             }
         }
 
-        // ฟังก์ชันสำหรับเพิ่มข้อความลงในหน้าจอแชต
-        function appendMessage(text, className) {
-            const chatBox = document.getElementById("chat-box");
-            const msgDiv = document.createElement("div");
-            const msgId = "msg-" + Date.now();
-            
-            msgDiv.id = msgId;
-            msgDiv.className = "message " + className;
-            msgDiv.innerText = text;
-            
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight; // เลื่อนหน้าจอลงล่างสุดอัตโนมัติ
-            
-            return msgId;
+        // --- ฟังก์ชันวาด UI (เหมือนเดิม) ---
+        function appendUserMessage(text) {
+            const msgHtml = `
+                <div class="flex justify-end mb-4 animate-fade-in relative z-10">
+                    <div class="bg-indigo-600 text-white p-4 rounded-[1.2rem] rounded-tr-sm text-sm max-w-[85%] shadow-md border border-indigo-700">
+                        ${text}
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', msgHtml);
+            scrollToBottom();
         }
 
-        // กด Enter เพื่อส่งข้อความได้
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
+        function appendBotMessage(text) {
+            const msgHtml = `
+                <div class="flex items-start gap-3 mb-4 animate-fade-in relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white shrink-0 shadow-md mt-1">
+                        <i class="fas fa-robot text-xs"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-4 rounded-[1.2rem] rounded-tl-sm text-sm text-slate-700 shadow-sm max-w-[85%] leading-relaxed">
+                        ${text}
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', msgHtml);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const typingHtml = `
+                <div id="${id}" class="flex items-start gap-3 mb-4 relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-200 to-slate-300 flex items-center justify-center text-slate-500 shrink-0 mt-1 shadow-inner">
+                        <i class="fas fa-robot text-xs"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-4 rounded-[1.2rem] rounded-tl-sm shadow-sm flex items-center gap-1.5 h-10">
+                        <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>`;
+            chatBox.insertAdjacentHTML('beforeend', typingHtml);
+            scrollToBottom();
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
-
 </body>
 </html>

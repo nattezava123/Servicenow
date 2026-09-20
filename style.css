@@ -7,6 +7,28 @@ body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-/* Custom SweetAlert adjustments for font */
+/* Custom SweetAlert */
 .swal2-popup { font-family: 'Prompt', sans-serif !important; border-radius: 1rem !important; }
 .swal2-title { font-size: 1.25rem !important; }
+
+/* Mobile Table to Card */
+@media (max-width: 768px) {
+    .mobile-table thead { display: none; }
+    .mobile-table, .mobile-table tbody, .mobile-table tr, .mobile-table td { display: block; width: 100%; }
+    .mobile-table tr { 
+        background-color: white; 
+        margin-bottom: 1rem; 
+        border-radius: 0.75rem; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+        padding: 0.5rem; 
+        border: 1px solid #e2e8f0;
+    }
+    .mobile-table td { 
+        display: flex; justify-content: space-between; align-items: center; 
+        text-align: right; padding: 0.75rem; border-bottom: 1px dashed #e2e8f0; 
+    }
+    .mobile-table td:last-child { border-bottom: none; justify-content: center; }
+    .mobile-table td::before { 
+        content: attr(data-label); font-weight: 600; text-align: left; color: #64748b; font-size: 0.875rem;
+    }
+}

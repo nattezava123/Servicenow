@@ -1,52 +1,100 @@
-// จำลอง Database ด้วย LocalStorage
-const initDB = () => {
-    if (!localStorage.getItem('hk_users')) {
-        localStorage.setItem('hk_users', JSON.stringify([
-            { id: 1, username: 'admin', password: '123', role: 'admin', name: 'เจ้าหน้าที่คลัง', dept: 'คลังวัสดุ' },
-            { id: 2, username: 'user1', password: '123', role: 'user', name: 'สมศรี แม่บ้าน', dept: 'แผนกแม่บ้าน' }
-        ]));
-    }
-    if (!localStorage.getItem('hk_items')) {
-        localStorage.setItem('hk_items', JSON.stringify([
-            { id: 1, name: 'น้ำยาถูพื้น', category: 'น้ำยาทำความสะอาด', balance: 50 },
-            { id: 2, name: 'ผ้าขนหนู', category: 'ผ้า', balance: 100 }
-        ]));
-    }
-    if (!localStorage.getItem('hk_requests')) {
-        localStorage.setItem('hk_requests', JSON.stringify([]));
-    }
-};
+const DB_KEY = 'hk_spa_db';
+let db = { users: [], inventory: [], requests: [], reports: [] };
+let currentUser = null;
 
-// ฟังก์ชันช่วยเหลือ (Helper Functions)
-const getDB = (table) => JSON.parse(localStorage.getItem(table)) || [];
-const setDB = (table, data) => localStorage.setItem(table, JSON.stringify(data));
-const getCurrentUser = () => JSON.parse(localStorage.getItem('hk_currentUser'));
+// Setup SweetAlert2 Toast configuration
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});
 
-const logout = () => {
+function showToast(msg, type = 'success') {
+    Toast.fire({ icon: type, title: msg });
+}
+
+function initDB() {
+    const stored = localStorage.getItem(DB_KEY);
+    if (stored) {
+        db = JSON.parse(stored);
+    } else {
+        // Mock Data
+        db.users = [
+            { id: 'u1', username: 'admin', password: 'admin', role: 'admin', name: 'มานะ หัวหน้าคลัง', phone: '081-111-1111' },
+            { id: 'u2', username: 'user', password: 'user', role: 'user', name: 'สมหญิง แม่บ้าน', phone: '082-222-2222' }
+        ];
+        db.inventory = [
+            { id: 'i1', code: 'LN-001', name: 'ผ้าเช็ดตัว (ผืนใหญ่)', category: 'ผ้าและเครื่องนอน', qty: 250, unit: 'ผืน' },
+            { id: 'i2', code: 'CH-001', name: 'น้ำยาล้างห้องน้ำ', category: 'น้ำยาทำความสะอาด', qty: 50, unit: 'แกลลอน' },
+            { id: 'i3', code: 'AM-001', name: 'สบู่ก้อน', category: 'ของใช้ในห้องพัก', qty: 500, unit: 'ก้อน' },
+            { id: 'i4', code: 'AM-002', name: 'แชมพู', category: 'ของใช้ในห้องพัก', qty: 450, unit: 'ขวด' }
+        ];
+        saveDB();
+    }
+}
+
+function saveDB() {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+function generateId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+function formatDate(isoStr) {
+    const date = new Date(isoStr);
+    return date.toLocaleDateString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function updateClock() {
+    const el = document.getElementById('current-datetime');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateClock, 60000);
+
+function logout() {
     Swal.fire({
         title: 'ออกจากระบบ?',
-        icon: 'warning',
+        text: "คุณต้องการออกจากระบบใช่หรือไม่?",
+        icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'ออกจากระบบ',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#d33'
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก'
     }).then((result) => {
         if (result.isConfirmed) {
-            localStorage.removeItem('hk_currentUser');
+            localStorage.removeItem('hk_curr_user');
             window.location.href = 'login.html';
         }
     });
-};
+}
 
-const checkAuth = (requiredRole) => {
-    const user = getCurrentUser();
-    if (!user) {
-        window.location.href = 'login.html';
-    } else if (requiredRole && user.role !== requiredRole) {
-        window.location.href = user.role === 'admin' ? 'admin.html' : 'user.html';
+function checkAuth(requiredRole = null) {
+    initDB();
+    const saved = localStorage.getItem('hk_curr_user');
+    
+    if (!saved) {
+        if (window.location.pathname.indexOf('login.html') === -1) {
+            window.location.href = 'login.html';
+        }
+        return;
     }
-    return user;
-};
 
-// เริ่มต้นฐานข้อมูล
-initDB();
+    currentUser = JSON.parse(saved);
+    
+    // Redirect rules
+    if (requiredRole && currentUser.role !== requiredRole) {
+        window.location.href = currentUser.role === 'admin' ? 'admin.html' : 'user.html';
+    } else if (window.location.pathname.indexOf('login.html') !== -1) {
+        window.location.href = currentUser.role === 'admin' ? 'admin.html' : 'user.html';
+    }
+}

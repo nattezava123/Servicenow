@@ -2,47 +2,228 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบแม่บ้าน</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User | HK System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#0f172a', secondary: '#3b82f6' } } } }
+    </script>
 </head>
-<body class="pb-20 content-area">
+<body class="text-slate-800 antialiased h-screen flex overflow-hidden selection:bg-blue-200">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-40 flex justify-between items-center">
-        <h1 class="text-lg font-bold">พนักงานแม่บ้าน</h1>
-        <div class="desktop-nav gap-4">
-            <button onclick="switchTab('request')" class="hover:text-blue-200"><i class="fas fa-box-open mr-1"></i> เบิกวัสดุ</button>
-            <button onclick="switchTab('history')" class="hover:text-blue-200"><i class="fas fa-list mr-1"></i> ประวัติ</button>
-            <button onclick="switchTab('profile')" class="hover:text-blue-200"><i class="fas fa-user mr-1"></i> โปรไฟล์</button>
-            <button onclick="logout()" class="text-red-300 hover:text-red-100"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
-        <!-- Mobile Logout -->
-        <button onclick="logout()" class="md:hidden text-white p-2"><i class="fas fa-sign-out-alt"></i></button>
-    </header>
+    <div class="w-full h-full flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-primary text-slate-300 flex flex-col shadow-2xl z-30 flex-shrink-0">
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-900">
+                <i class="fas fa-boxes-packing mr-3 text-2xl text-blue-500"></i>
+                <span class="font-bold text-lg text-white tracking-wide">HK System</span>
+            </div>
+            
+            <div class="p-5 flex items-center border-b border-slate-800 bg-slate-800/30">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 flex items-center justify-center text-xl font-bold text-white mr-4 shadow-lg border-2 border-slate-700" id="sidebar-avatar">U</div>
+                <div class="overflow-hidden">
+                    <p class="font-medium text-sm text-white truncate" id="sidebar-name">User Name</p>
+                    <p class="text-xs text-blue-400 mt-0.5">พนักงานแม่บ้าน</p>
+                </div>
+            </div>
 
-    <!-- Main Content -->
-    <main class="p-4 max-w-4xl mx-auto" id="main-content">
-        <!-- Content injected by JS -->
-    </main>
+            <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+                <a href="#" id="nav-user-dashboard" onclick="switchView('user-dashboard', 'หน้าแรก')" class="nav-item flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition mb-1 text-slate-400 hover:text-white hover:bg-slate-800/50"><i class="fas fa-home w-6 text-center text-lg mr-2 opacity-80"></i> หน้าแรก / สถานะ</a>
+                <a href="#" id="nav-user-request" onclick="switchView('user-request', 'ส่งคำขอเบิกวัสดุ')" class="nav-item flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition mb-1 text-slate-400 hover:text-white hover:bg-slate-800/50"><i class="fas fa-cart-plus w-6 text-center text-lg mr-2 opacity-80"></i> ส่งคำขอเบิกวัสดุ</a>
+                <a href="#" id="nav-user-report" onclick="switchView('user-report', 'แจ้งวัสดุชำรุด/สูญหาย')" class="nav-item flex items-center px-4 py-3.5 rounded-xl text-sm font-medium transition mb-1 text-slate-400 hover:text-white hover:bg-slate-800/50"><i class="fas fa-triangle-exclamation w-6 text-center text-lg mr-2 opacity-80"></i> แจ้งวัสดุชำรุด/สูญหาย</a>
+            </nav>
 
-    <!-- Bottom Navigation (Mobile Only) -->
-    <nav class="bottom-nav">
-        <button onclick="switchTab('request')" id="tab-request" class="active">
-            <i class="fas fa-box-open"></i><span>เบิกวัสดุ</span>
-        </button>
-        <button onclick="switchTab('history')" id="tab-history">
-            <i class="fas fa-list"></i><span>สถานะ</span>
-        </button>
-        <button onclick="switchTab('profile')" id="tab-profile">
-            <i class="fas fa-user"></i><span>โปรไฟล์</span>
-        </button>
-    </nav>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="logout()" class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium rounded-xl text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition border border-transparent hover:border-rose-500/30">
+                    <i class="fas fa-sign-out-alt mr-2"></i> ออกจากระบบ
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative overflow-hidden">
+            <header class="h-16 bg-white shadow-sm border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 z-20 sticky top-0 flex-shrink-0">
+                <h2 class="text-xl font-semibold text-slate-800" id="page-title">หน้าแรก</h2>
+                <div class="hidden md:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full text-slate-600 text-sm font-medium">
+                    <i class="far fa-calendar-alt text-blue-500"></i>
+                    <span id="current-datetime"></span>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+                
+                <!-- Dashboard -->
+                <div id="view-user-dashboard" class="app-view hidden space-y-6">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold mb-3">สวัสดี, <span id="welcome-user-name"></span> 👋</h3>
+                            <p class="text-blue-100 max-w-lg text-sm sm:text-base leading-relaxed">ยินดีต้อนรับสู่ระบบเบิกจ่ายวัสดุอุปกรณ์แม่บ้าน คุณสามารถสร้างคำขอเบิก ตรวจสอบสถานะ และแจ้งปัญหาวัสดุได้ผ่านเมนู</p>
+                        </div>
+                        <i class="fas fa-boxes-packing absolute -right-4 -bottom-10 text-white/10 text-9xl transform -rotate-12"></i>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i class="fas fa-clipboard-list text-blue-500"></i> รายการเบิกของฉัน</h3>
+                            <button onclick="switchView('user-request', 'ส่งคำขอเบิกวัสดุ')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"><i class="fas fa-plus"></i> สร้างคำขอใหม่</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm"><thead class="bg-white text-slate-500 border-b border-slate-200"><tr><th class="px-6 py-4 font-medium">วันที่ / รหัส</th><th class="px-6 py-4 font-medium">รายการที่เบิก</th><th class="px-6 py-4 font-medium text-center">สถานะ</th><th class="px-6 py-4 font-medium text-center">จัดการ</th></tr></thead><tbody id="user-req-tbody" class="divide-y divide-slate-100"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Request Form -->
+                <div id="view-user-request" class="app-view hidden">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6">สร้างคำขอเบิกวัสดุ</h3>
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                        <!-- Catalog -->
+                        <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+                                <div class="relative"><i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i><input type="text" id="req-search" onkeyup="renderCatalog()" placeholder="ค้นหาชื่อวัสดุ..." class="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                            </div>
+                            <div class="p-6"><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="req-catalog-grid"></div></div>
+                        </div>
+
+                        <!-- Cart -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden sticky top-0">
+                            <div class="px-6 py-5 border-b border-slate-100 bg-blue-50 text-blue-800 flex justify-between items-center"><h3 class="font-bold text-lg"><i class="fas fa-shopping-basket mr-2"></i> รายการที่เลือก</h3><span id="cart-count" class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-sm">0</span></div>
+                            <div class="p-4 max-h-[400px] overflow-y-auto" id="cart-container"></div>
+                            <div class="p-5 border-t border-slate-100 bg-slate-50">
+                                <button onclick="submitRequest()" id="btn-submit-req" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-medium transition shadow-lg disabled:opacity-50" disabled><i class="fas fa-paper-plane"></i> ยืนยันส่งคำขอเบิก</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Form -->
+                <div id="view-user-report" class="app-view hidden">
+                    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-rose-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-rose-100 bg-rose-50 flex items-center gap-4 text-rose-800">
+                            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex justify-center items-center"><i class="fas fa-exclamation-triangle text-2xl"></i></div>
+                            <div><h3 class="font-bold text-xl">แจ้งวัสดุสูญเสียหรือชำรุด</h3><p class="text-sm opacity-80 mt-1">โปรดระบุข้อมูลให้ครบถ้วนเพื่อทำการตัดสต๊อกทันที</p></div>
+                        </div>
+                        <form onsubmit="submitReport(event)" class="p-8 space-y-6">
+                            <div><label class="block text-sm font-medium text-slate-700 mb-2">รายการวัสดุ <span class="text-rose-500">*</span></label><select id="rep-item" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none" required></select></div>
+                            <div class="grid grid-cols-2 gap-5">
+                                <div><label class="block text-sm font-medium text-slate-700 mb-2">ประเภทปัญหา <span class="text-rose-500">*</span></label><select id="rep-type" class="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none" required><option value="damaged">ชำรุด / เสียหาย</option><option value="lost">สูญหาย</option></select></div>
+                                <div><label class="block text-sm font-medium text-slate-700 mb-2">จำนวนที่สูญเสีย <span class="text-rose-500">*</span></label><input type="number" id="rep-qty" min="1" class="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none" required></div>
+                            </div>
+                            <div><label class="block text-sm font-medium text-slate-700 mb-2">หมายเหตุ</label><textarea id="rep-note" rows="3" class="w-full px-4 py-3 border border-slate-300 rounded-xl outline-none"></textarea></div>
+                            <div class="pt-6 border-t border-slate-100 flex justify-end"><button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg flex items-center gap-2"><i class="fas fa-save"></i> บันทึกการแจ้งปัญหา</button></div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
 
     <script src="db.js"></script>
-    <script src="user.js"></script>
+    <script>
+        checkAuth('user');
+        document.getElementById('sidebar-name').textContent = currentUser.name;
+        document.getElementById('welcome-user-name').textContent = currentUser.name;
+        document.getElementById('sidebar-avatar').textContent = currentUser.name.charAt(0);
+        updateClock();
+        let cart = [];
+
+        function switchView(viewId, titleStr) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'shadow-md'); el.classList.add('text-slate-400'); });
+            const navActive = document.getElementById(`nav-${viewId}`);
+            if(navActive) { navActive.classList.add('bg-blue-600', 'text-white', 'shadow-md'); navActive.classList.remove('text-slate-400'); }
+            
+            document.getElementById('page-title').textContent = titleStr;
+
+            if (viewId === 'user-dashboard') renderDashboard();
+            if (viewId === 'user-request') { cart = []; renderCatalog(); renderCart(); }
+            if (viewId === 'user-report') renderReportDropdown();
+        }
+
+        // --- Dashboard ---
+        function renderDashboard() {
+            const tbody = document.getElementById('user-req-tbody'); tbody.innerHTML = '';
+            const myReqs = db.requests.filter(r => r.userId === currentUser.id).sort((a,b) => new Date(b.date) - new Date(a.date));
+            if(!myReqs.length) return tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-500"><i class="fas fa-receipt text-3xl mb-3 opacity-50 block"></i>คุณยังไม่มีประวัติการเบิกวัสดุ</td></tr>`;
+
+            myReqs.forEach(req => {
+                const st = {pending:{l:'รออนุมัติ',c:'bg-amber-100 text-amber-700'}, approved:{l:'อนุมัติแล้ว',c:'bg-emerald-100 text-emerald-700'}, rejected:{l:'ไม่อนุมัติ',c:'bg-rose-100 text-rose-700'}, cancelled:{l:'ผู้ใช้ยกเลิก',c:'bg-slate-100 text-slate-600'}}[req.status];
+                const itemsList = req.items.map(i => `<div class="text-xs text-slate-600 mb-1 flex items-center"><i class="fas fa-check text-emerald-400 mr-2"></i>${i.itemName} <span class="font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded ml-2">x${i.qty}</span></div>`).join('');
+                
+                let cancelBtn = '-';
+                if(req.status === 'pending') cancelBtn = `<button onclick="cancelMyReq('${req.id}')" class="text-rose-500 border border-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm">ยกเลิกคำขอ</button>`;
+
+                tbody.innerHTML += `<tr class="hover:bg-slate-50 border-b border-slate-50 transition"><td class="px-6 py-4"><div class="font-mono text-xs text-slate-500 bg-slate-100 inline-block px-1 rounded mb-1">#${req.id.toUpperCase()}</div><div class="text-xs text-slate-700">${formatDate(req.date)}</div></td><td class="px-6 py-4">${itemsList}</td><td class="px-6 py-4 text-center"><span class="${st.c} px-3 py-1 rounded-full text-xs font-semibold">${st.l}</span></td><td class="px-6 py-4 text-center">${cancelBtn}</td></tr>`;
+            });
+        }
+        function cancelMyReq(id) {
+            Swal.fire({ title: 'ยกเลิกคำขอ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ยกเลิกคำขอ' }).then(res => {
+                if(res.isConfirmed) { db.requests.find(r => r.id === id).status = 'cancelled'; saveDB(); renderDashboard(); showToast('ยกเลิกแล้ว', 'info'); }
+            });
+        }
+
+        // --- Requests / Catalog ---
+        function renderCatalog() {
+            const search = document.getElementById('req-search').value.toLowerCase();
+            const grid = document.getElementById('req-catalog-grid'); grid.innerHTML = '';
+            const available = db.inventory.filter(i => (i.name.toLowerCase().includes(search) || i.category.toLowerCase().includes(search)) && i.qty > 0);
+            if(!available.length) return grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-400"><i class="fas fa-box-open text-3xl mb-3 opacity-50 block"></i>ไม่พบวัสดุที่สามารถเบิกได้</div>`;
+
+            available.forEach(item => {
+                grid.innerHTML += `<div class="border border-slate-200 rounded-xl p-5 hover:shadow-lg transition bg-white flex flex-col justify-between group"><div><div class="text-xs text-slate-500 bg-slate-100 inline-block px-2 py-0.5 rounded-md mb-2">${item.category}</div><h4 class="font-bold text-slate-800 text-lg leading-tight">${item.name}</h4><p class="text-sm text-emerald-600 font-bold mt-2 bg-emerald-50 inline-block px-2 py-1 rounded">คงเหลือ: ${item.qty} ${item.unit}</p></div><div class="mt-5 flex gap-2"><input type="number" id="qty-${item.id}" min="1" max="${item.qty}" value="1" class="w-20 px-3 py-2 border border-slate-300 rounded-lg text-center outline-none focus:ring-2 focus:ring-blue-200 transition"><button onclick="addToCart('${item.id}', '${item.name}', ${item.qty})" class="flex-1 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white py-2 rounded-lg text-sm font-bold transition flex justify-center items-center gap-2 group-hover:shadow-md"><i class="fas fa-plus"></i> เพิ่ม</button></div></div>`;
+            });
+        }
+        function addToCart(id, name, max) {
+            const qtyInput = document.getElementById(`qty-${id}`);
+            let qty = parseInt(qtyInput.value);
+            if (isNaN(qty) || qty < 1) return showToast('ระบุจำนวนไม่ถูกต้อง', 'error');
+            const exist = cart.find(i => i.itemId === id);
+            if (exist) { if (exist.qty + qty > max) return Swal.fire('เกินกำหนด', `เบิกได้สูงสุด ${max}`, 'warning'); exist.qty += qty; } 
+            else { if (qty > max) return Swal.fire('เกินกำหนด', `เบิกได้สูงสุด ${max}`, 'warning'); cart.push({ itemId: id, itemName: name, qty, maxQty: max }); }
+            qtyInput.value = 1; showToast(`เพิ่ม ${name} ลงตะกร้า`); renderCart();
+        }
+        function renderCart() {
+            const cont = document.getElementById('cart-container'); const btn = document.getElementById('btn-submit-req');
+            document.getElementById('cart-count').textContent = cart.length;
+            if(!cart.length) { cont.innerHTML = `<div class="text-center py-10 text-slate-400 text-sm"><i class="fas fa-shopping-basket text-4xl mb-3 opacity-50 block"></i><p>ยังไม่มีรายการที่เลือก</p></div>`; btn.disabled = true; return; }
+            btn.disabled = false; cont.innerHTML = '<div class="space-y-3"></div>'; const list = cont.querySelector('div');
+            cart.forEach(c => {
+                list.innerHTML += `<div class="flex justify-between items-center p-3 bg-white border border-slate-200 shadow-sm rounded-xl"><div class="flex-1 pr-2"><p class="font-bold text-slate-800 text-sm">${c.itemName}</p><p class="text-xs text-blue-600 font-bold mt-1 bg-blue-50 inline-block px-2 py-0.5 rounded">จำนวน: ${c.qty}</p></div><button onclick="cart=cart.filter(i=>i.itemId!=='${c.itemId}');renderCart()" class="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition shadow-sm"><i class="fas fa-trash-alt text-sm"></i></button></div>`;
+            });
+        }
+        function submitRequest() {
+            if(!cart.length) return;
+            Swal.fire({ title: 'ยืนยันส่งคำขอเบิก?', text: `คุณต้องการเบิก ${cart.length} รายการใช่หรือไม่?`, icon: 'question', showCancelButton: true, confirmButtonText: 'ยืนยันส่งคำขอ' }).then(res => {
+                if(res.isConfirmed) { db.requests.push({ id: generateId(), userId: currentUser.id, userName: currentUser.name, items: cart, status: 'pending', date: new Date().toISOString() }); saveDB(); Swal.fire('สำเร็จ!', 'ส่งคำขอเบิกเรียบร้อย', 'success'); cart = []; switchView('user-dashboard', 'หน้าแรก'); }
+            });
+        }
+
+        // --- Report ---
+        function renderReportDropdown() {
+            const select = document.getElementById('rep-item'); select.innerHTML = '<option value="">-- เลือกรายการ --</option>';
+            db.inventory.forEach(i => { select.innerHTML += `<option value="${i.id}">${i.name} (รหัส: ${i.code})</option>`; });
+        }
+        function submitReport(e) {
+            e.preventDefault(); const itemId = document.getElementById('rep-item').value; const qty = parseInt(document.getElementById('rep-qty').value);
+            if(!itemId) return showToast('กรุณาเลือกวัสดุ', 'error');
+            const inv = db.inventory.find(i => i.id === itemId);
+            if(inv.qty < qty) return Swal.fire('ผิดพลาด', 'จำนวนที่แจ้งมีค่ามากกว่าในคลัง', 'error');
+            Swal.fire({ title: 'ยืนยันการแจ้ง?', text: `ระบบจะตัดสต๊อก ${inv.name} ทันที!`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#e11d48', confirmButtonText: 'บันทึกการแจ้ง' }).then(res => {
+                if(res.isConfirmed) {
+                    inv.qty -= qty; db.reports.push({ id: generateId(), userId: currentUser.id, userName: currentUser.name, itemId: inv.id, itemName: inv.name, qty: qty, type: document.getElementById('rep-type').value, note: document.getElementById('rep-note').value, date: new Date().toISOString() });
+                    saveDB(); Swal.fire('สำเร็จ', 'บันทึกและตัดสต๊อกเรียบร้อยแล้ว', 'success'); switchView('user-dashboard', 'หน้าแรก');
+                }
+            });
+        }
+
+        switchView('user-dashboard', 'หน้าแรก / สถานะ');
+    </script>
 </body>
 </html>

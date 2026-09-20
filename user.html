@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบแม่บ้าน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="pb-20 content-area">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-40 flex justify-between items-center">
+        <h1 class="text-lg font-bold">พนักงานแม่บ้าน</h1>
+        <div class="desktop-nav gap-4">
+            <button onclick="switchTab('request')" class="hover:text-blue-200"><i class="fas fa-box-open mr-1"></i> เบิกวัสดุ</button>
+            <button onclick="switchTab('history')" class="hover:text-blue-200"><i class="fas fa-list mr-1"></i> ประวัติ</button>
+            <button onclick="switchTab('profile')" class="hover:text-blue-200"><i class="fas fa-user mr-1"></i> โปรไฟล์</button>
+            <button onclick="logout()" class="text-red-300 hover:text-red-100"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+        <!-- Mobile Logout -->
+        <button onclick="logout()" class="md:hidden text-white p-2"><i class="fas fa-sign-out-alt"></i></button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-4 max-w-4xl mx-auto" id="main-content">
+        <!-- Content injected by JS -->
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <button onclick="switchTab('request')" id="tab-request" class="active">
+            <i class="fas fa-box-open"></i><span>เบิกวัสดุ</span>
+        </button>
+        <button onclick="switchTab('history')" id="tab-history">
+            <i class="fas fa-list"></i><span>สถานะ</span>
+        </button>
+        <button onclick="switchTab('profile')" id="tab-profile">
+            <i class="fas fa-user"></i><span>โปรไฟล์</span>
+        </button>
+    </nav>
+
+    <script src="db.js"></script>
+    <script src="user.js"></script>
+</body>
+</html>
